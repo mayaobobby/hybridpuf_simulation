@@ -5,11 +5,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import sys, os
+from pathlib import Path
 
 from xorpuf_attack import *
 from apuf_attack import *
 
+
+
+
 if __name__ == '__main__':
+	Path("./data").mkdir(parents=True, exist_ok=True)
+	
 	repeat_experiment = 10
 	size_challenge = 32
 	level_noisiness = 0.1
