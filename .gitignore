@@ -1,4 +1,6 @@
 # Byte-compiled / optimized / DLL files
+Simulation_pypuf/__pycache__/
+Simulation_netsquid/__pycache__/
 __pycache__/
 *.py[cod]
 *$py.class
@@ -127,3 +129,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Customized
+Simulation_pypuf/data/*
+
+# Mac
+.DS_Store
