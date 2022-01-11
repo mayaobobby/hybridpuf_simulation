@@ -26,7 +26,7 @@ def hybrid_flipping(value_original, bias):
 
 	return value_updated	
 
-def crp_apuf(n):
+def crp_apuf(n, steps=10):
 	crps = np.array([])
 	N = 1000
 	step = 0
@@ -37,7 +37,7 @@ def crp_apuf(n):
 	elif n == 128:
 		step = 50e3
 
-	for i in range(10):
+	for i in range(steps):
 		crps = np.append(crps, N)
 		N = N + step
 
