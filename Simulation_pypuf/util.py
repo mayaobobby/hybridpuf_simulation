@@ -26,7 +26,8 @@ def hybrid_flipping(value_original, bias):
 
 	return value_updated	
 
-def crp_apuf(crps, n):
+def crp_apuf(n):
+	crps = np.array([])
 	N = 1000
 	step = 0
 	if n == 32:
