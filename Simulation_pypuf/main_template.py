@@ -57,10 +57,7 @@ if __name__ == '__main__':
 	'''
 	Step 2: Obatin simluiation result of such puf under logistic regresssion attack
 	'''
-	crps = np.array([])
-	accuracy_cpuf = np.array([])
-	
-	crps = crp_apuf(crps, n)
+	crps = crp_apuf(n)
 	accuracy_cpuf = instance_one_apuf_attack_n(puf, crps, repeat_experiment)
 	accuracy_hpuf = instance_one_hybrid_apuf_attack_n(puf, crps, position, repeat_experiment)
 
