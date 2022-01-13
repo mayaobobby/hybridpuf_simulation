@@ -7,7 +7,7 @@ import pypuf.metrics
 import numpy as np 
 import matplotlib.pyplot as plt
 import math
-import sys, os
+import sys, os, random
 
 from util import *
 
@@ -26,19 +26,21 @@ def puf_bias(puf):
 '''
 Description: Instantiate an arbiter PUF chain
 '''
-def instance_one_apuf(size_challenge, level_noisiness, weight_bias, bias):
+def instance_one_puf(size_challenge, level_noisiness, weight_bias, bias, k=1):
 	seed_instance = int.from_bytes(os.urandom(4), "big")
-	puf = pypuf.simulation.ArbiterPUF(n=size_challenge, noisiness=level_noisiness, seed=seed_instance)
+	if k == 1:
+		puf = pypuf.simulation.ArbiterPUF(n=size_challenge, noisiness=level_noisiness, seed=seed_instance)
+	else:
+		puf = pypuf.simulation.XORArbiterPUF(n=size_challenge, noisiness=level_noisiness, seed=seed_instance, k=k)
 	
 	while puf_bias(puf) < bias-0.005:
-		weight_bias = weight_bias - 0.1
-		puf.weight_array[0][size_challenge] = np.array([[weight_bias]])
+		for i in range(k):
+			weight_bias = weight_bias - 0.1
+			puf.weight_array[i][size_challenge] = np.array([[weight_bias]])
 
 	# print(weight_bias)
 	# print(puf_bias(puf))
-
 	return puf
-
 
 '''
 Description: Return the reliability of a puf
@@ -50,7 +52,7 @@ def puf_reliability(puf):
 	return reliability_instance
 
 '''
-Description: Arbiter PUF under ML attacks with classical structure. (one chain)
+Description: Arbiter-based PUF under ML attacks with classical structure. (one chain)
 '''
 def instance_one_apuf_attack(puf, num_crps, num_bs, num_epochs):
 	seed_instance = int.from_bytes(os.urandom(4), "big")
@@ -68,8 +70,8 @@ def instance_one_apuf_attack(puf, num_crps, num_bs, num_epochs):
 	seed_instance_test = int.from_bytes(os.urandom(4), "big")
 	accuracy = pypuf.metrics.similarity(puf, model, seed=seed_instance_test, N=round(num_crps*0.1))
 
-
 	return accuracy
+
 
 def instance_one_apuf_attack_n(puf, crps, repeat_experiment, steps=10):
 	accuracy_cpuf = np.array([])
@@ -101,6 +103,7 @@ Description: Arbiter PUF under ML attacks with hybrid structure. (one chain)
 '''
 def instance_one_hybrid_apuf_attack(puf, num_crps, position, num_bs, num_epochs):
 	bias = puf_bias(puf)
+	print('Bias:', bias)
 	seed_instance = int.from_bytes(os.urandom(4), "big")
 	crps_basis = pypuf.io.ChallengeResponseSet.from_simulation(puf, N=num_crps, seed=seed_instance)
 	crps_bit = pypuf.io.ChallengeResponseSet.from_simulation(puf, N=num_crps, seed=seed_instance)
@@ -113,13 +116,14 @@ def instance_one_hybrid_apuf_attack(puf, num_crps, position, num_bs, num_epochs)
 		bit value 
 		'''
 		for i in range(crps_basis.responses.size):
-			# print(crps.responses[i][0][0])
 			'''
 			Here is how an adversary obatin the training data from hpuf on state value (Different between #1 and #2)
 			'''
+			# print(crps.responses[i][0][0])
 			crps_basis.responses[i][0][0] = hybrid_flipping(crps_basis.responses[i][0][0], bias)
 			# crps_basis.responses[i][0][0] = -1.0
 			if crps_basis.responses[i][0][0] != res_basis_cpy[i][0][0]:
+			# if crps_basis.responses[i][0][0] != 2*random.randint(0,1)-1:
 				crps_bit.responses[i][0][0] = hybrid_flipping(crps_bit.responses[i][0][0], 0.5)
 
 		# print('Similarity basis:', pypuf.metrics.similarity_data(crps_basis.responses, res_basis_cpy))		
@@ -131,26 +135,28 @@ def instance_one_hybrid_apuf_attack(puf, num_crps, position, num_bs, num_epochs)
 		basis value
 		'''	
 		for i in range(crps_basis.responses.size):
-			# print(crps.responses[i][0][0])
 			'''
 			Here is how an adversary obatin the training data from hpuf on basis value (Different between #1 and #2)
 			'''
-			crps_basis.responses[i][0][0] = hybrid_flipping(crps_basis.responses[i][0][0], bias)
+			# print(crps.responses[i][0][0])
+			crps_basis.responses[i][0][0] = hybrid_flipping(crps_basis.responses[i][0][0], 0.75)
 			# crps_basis.responses[i][0][0] = -1.0
 
 		print('Similarity basis:', pypuf.metrics.similarity_data(crps_basis.responses, res_basis_cpy))	
 		attack = pypuf.attack.LRAttack2021(crps_basis, seed=seed_instance_train, k=puf.k, bs=num_bs, lr=.001, epochs=num_epochs)
 
-	# print('Similarity:',pypuf.metrics.similarity_data(crps.responses, res_cpy))
 	attack.fit()
 
 	model = attack.model
 
 	seed_instance_test = int.from_bytes(os.urandom(4), "big")
+	# 1
 	accuracy = pypuf.metrics.similarity(puf, model, seed=seed_instance_test)
+	# 2
+	# test_set = pypuf.io.ChallengeResponseSet.from_simulation(puf, N=1000, seed=seed_instance_test)
+	# accuracy = pypuf.metrics.accuracy(model, test_set)
 
 	return accuracy
-
 
 def instance_one_hybrid_apuf_attack_n(puf, crps, position, repeat_experiment, steps=10):
 	accuracy_hpuf = np.array([])
@@ -166,8 +172,6 @@ def instance_one_hybrid_apuf_attack_n(puf, crps, position, repeat_experiment, st
 
 	return accuracy_hpuf
 
-
-
 '''
 Description: Arbiter PUF under ML attacks with hybrid structure. (two chains for encoding one qubit, puf_bit encodes bit value,  puf_basis encodes basis value)
 '''
@@ -182,7 +186,6 @@ def instance_two_hybrid_apuf_attack(puf_bit, puf_basis, crps, repeat_experiment)
 
 '''
 Description: Modeling Result of ML attacks comparison (one chain)
-
 '''
 def comparison_crps_accuracy_single_apuf_plotting(n, noisiness, weight_bias, bias, position, repeat_experiment):
 
