@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	variable2: noisiness, it effects the reliability(robustness) of CPUF instance, it defaults to 0.1 (It turns out to be 95% around of reliability)
 	variable3: the biased distribution on responses, it defaults to 0.5. 
  	variable4: basis, bit or bothaccuracy of hpuf, it defaults to 'bit'
-
+	variable5: kXORPUF 
 
 	'''
 	if len(sys.argv) == 5:
@@ -37,11 +37,13 @@ if __name__ == '__main__':
 		noisiness = float(sys.argv[2])
 		bias = float(sys,argv[3])
 		position = sys.argv[4]
+		k = int(sys.argv[5])
 	else:
 		n = 64
 		noisiness = 0.1	
 		bias = 0.6
 		position = 'bit'
+		k = 1
 
 	Path("./data").mkdir(parents=True, exist_ok=True)
 	# Times of repeat experiment 
@@ -50,7 +52,7 @@ if __name__ == '__main__':
 	Step 1: Create and instance of PUF
 	'''
 	weight_bias_initial = 0
-	puf = instance_one_apuf(n, noisiness, weight_bias_initial, bias)
+	puf = instance_one_puf(n, noisiness, weight_bias_initial, bias, k)
 	# bias = puf_bias(puf)
 	# print(bias)
 
