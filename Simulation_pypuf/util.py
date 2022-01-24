@@ -26,13 +26,6 @@ def hybrid_flipping(value_original, bias):
 
 	return value_updated	
 
-def non_uniform_inputs(n, N, seed, quantile):
-	challenges =  np.random.random_sample((N,n))
-	challenges_postprocessing = np.sign(challenges - quantile)
-
-	return challenges_postprocessing
-
-
 def crp_apuf(n, steps=10):
 	crps = np.array([])
 	N = 1000
