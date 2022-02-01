@@ -11,21 +11,6 @@ import sys, os, random
 
 from util import *
 
-# def puf_reliability(puf):
-# 	seed_reliability = int.from_bytes(os.urandom(4), "big")
-# 	reliability_instance = np.average(pypuf.metrics.reliability(puf, seed_reliability))
-	
-# 	return reliability_instance
-
-
-# def puf_uniqueness(n, m):
-# 	seed_uniqueness = int.from_bytes(os.urandom(4), "big")
-# 	instances_opt = [pypuf.simulation.IntegratedOpticalPUF(n=n_size,m=m_size, seed=i) for i in range(5)]
-# 	uniqueness = pypuf.metrics.uniqueness(instances_opt, seed=seed_uniqueness, N=1000)
-
-# 	return uniqueness
-
-
 def instance_one_opuf_attack(puf, num_crps):
 	seed_instance = int.from_bytes(os.urandom(4), "big")
 	crps = pypuf.io.ChallengeResponseSet.from_simulation(puf, N=num_crps, seed=seed_instance)
@@ -120,13 +105,12 @@ def instance_one_hybrid_opuf_attack_n(puf, crps, repeat_experiment, steps=10):
 
 	return accuracy_hpuf
 
-
 def crp_opuf(n, steps=10):
 	crps = np.array([])
 	N = 1e2
 	step = 0
 	if n == 32:
-		step = 5e2
+		step = 1e4
 	elif n == 64:
 		step = 20e3
 	elif n == 128:
@@ -138,30 +122,39 @@ def crp_opuf(n, steps=10):
 
 	return crps
 
+
+
+
 '''
 template of usage
 '''
-if __name__ == '__main__':
-	n_size = 32
-	m_size = 26
-	N_sample = int(40e4)
-	seed_instance = int.from_bytes(os.urandom(4), "big")
-	puf_opt = pypuf.simulation.IntegratedOpticalPUF(n=n_size,m=m_size, seed=seed_instance)
+# if __name__ == '__main__':
+# 	n_size = 32
+# 	m_size = 26
+# 	N_sample = int(8e4)
+# 	seed_instance = int.from_bytes(os.urandom(4), "big")
+# 	puf_opt = pypuf.simulation.IntegratedOpticalPUF(n=n_size,m=m_size, seed=seed_instance)
 
-	# crps = pypuf.io.ChallengeResponseSet.from_simulation(puf_opt, N=N_sample, seed=2)
-	# print(crps.responses.shape[1])
+# 	repeat_experiment = 1
 
-	repeat_experiment = 1
-
-	crps = crp_opuf(n_size, steps=10)
+# 	crps = crp_opuf(n_size, steps=10)
 
 
+# 	# accuracy_c = instance_one_opuf_attack(puf_opt, N_sample)
+# 	# accuracy_h = instance_one_hybrid_opuf_attack(puf_opt, N_sample)
 
-	accuracy_c = instance_one_opuf_attack(puf_opt, N_sample)
-	print(accuracy_c)
-	accuracy_h = instance_one_hybrid_opuf_attack(puf_opt, N_sample)
-	print(accuracy_h)
-	# accuracy_c = instance_one_opuf_attack_n(puf_opt, crps, repeat_experiment, steps=10)
-	# accuracy_h = instance_one_hybrid_opuf_attack_n(puf_opt, crps, repeat_experiment, steps=10)
+# 	accuracy_c = instance_one_opuf_attack_n(puf_opt, crps, repeat_experiment)
+# 	print(accuracy_c)
+# 	accuracy_h = instance_one_hybrid_opuf_attack_n(puf_opt, crps, repeat_experiment)
+# 	print(accuracy_h)
+
+# 	plt.title('Optical PUF with Classical/Hybrid Construction')
+# 	plt.plot(crps, accuracy_c, label='cpuf')
+# 	plt.plot(crps, accuracy_h, label='hpuf')
+# 	plt.xlabel('Number of CRPs')
+# 	plt.ylabel('Accuracy (x100%)')
+# 	plt.legend()
+# 	plt.show()
+
 
 	
