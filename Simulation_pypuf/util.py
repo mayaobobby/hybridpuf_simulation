@@ -2,21 +2,19 @@
 import random
 import numpy as np
 
-# def hybrid_flipping(value_original, bias):
-# 	value_updated = value_original
-
-# 	value_p = random.random()
-
-# 	if value_p >= max(bias, 1-bias):
-# 		value_updated = -value_original
-# 	else:
-# 		pass
-
-# 	return value_updated
-
 def hybrid_flipping(value_original, bias):
-	# value_updated = value_original
+	value_updated = value_original
 
+	value_p = random.random()
+
+	if value_p >= bias:
+		value_updated = -value_original
+	else:
+		pass
+
+	return value_updated
+
+def random_bit(bias):
 	value_p = random.random()
 
 	if value_p >= bias:
