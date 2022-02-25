@@ -8,10 +8,17 @@ import os, sys, random
 
 import numpy as np
 
-def linear_boolean_function(weight, position=0):
-	a = np.repeat(1,weight)
-	b = np.repeat(0,n-weight)
-	function_generation = np.concatenate((a,b))
+from util import *
+
+def linear_boolean_function(n, weight, position=0):
+	function_generation = np.zeros(n)
+	for i in range(weight):
+		function_generation[i] = 1
+	'''
+	ones = np.random.choice(np.arange(0,n),replace = False, size = weight)
+	for position in ones:
+		function_generation[position] = 1
+	'''
 
 	return function_generation
 
@@ -21,38 +28,15 @@ def crps_generation(puf_linear, challenges, N):
 	crps = pypuf.io.ChallengeResponseSet(challenges, responses)
 	return crps
 
-def hybrid_flipping_0(value_original, bias):
-	value_updated = value_original
-
-	value_p = random.random()
-
-	if value_p >= bias:
-		value_updated = -value_original
-	else:
-		pass
-
-	return value_updated
-
-
-# Template of usage
-'''
-if __name__ == '__main__':
-	n = 32
-	N = int(260e3)
-	weight = 4
+def instance_one_lbf_attack(puf, n, N, k = 5, num_bs = 1000,num_epochs = 100):
 	seed_instance = int.from_bytes(os.urandom(4), "big")
+	seed_instance_train = int.from_bytes(os.urandom(4), "big")
 	seed_instance_test = int.from_bytes(os.urandom(4), "big")
-
+	
 	challenges = pypuf.io.random_inputs(n=n, N=N, seed=seed_instance)
-	puf_lbf = linear_boolean_function(weight)
-	crps = crps_generation(puf_lbf, challenges, N)
+	crps = crps_generation(puf, challenges, N)
 
-	for i in range(N):
-		crps.responses[i][0][0] = hybrid_flipping_0(crps.responses[i][0][0], 0.75)
-
-
-
-	attack = pypuf.attack.LMNAttack(crps, deg=2)
+	attack = pypuf.attack.LRAttack2021(crps, seed=seed_instance_train, k = k, bs = num_bs, lr=.001, epochs=num_epochs)
 	attack.fit()
 
 	model = attack.model
@@ -61,11 +45,53 @@ if __name__ == '__main__':
 	N_test = 1000
 	challenges_test = pypuf.io.random_inputs(n=n, N=N_test, seed=seed_instance_test)
 
-	crps_reference = crps_generation(puf_lbf, challenges_test, N_test)
+	crps_reference = crps_generation(puf, challenges_test, N_test)
 	crps_model = pypuf.io.ChallengeResponseSet(challenges_test, model.eval(challenges_test))
 
 	accuracy = pypuf.metrics.similarity_data(crps_reference.responses, crps_model.responses)
 
-	print(accuracy)
-'''
+	return accuracy
+
+def instance_one_hybrid_lbf_attack(puf, n, N, k = 4, num_bs = 1000,num_epochs = 100):
+	seed_instance = int.from_bytes(os.urandom(4), "big")
+	seed_instance_train = int.from_bytes(os.urandom(4), "big")
+	seed_instance_test = int.from_bytes(os.urandom(4), "big")
+	
+	challenges = pypuf.io.random_inputs(n=n, N=N, seed=seed_instance)
+	crps = crps_generation(puf, challenges, N)
+	for i in range(N):
+		crps.responses[i][0][0] = hybrid_flipping(crps.responses[i][0][0], 0.75)
+
+	attack = pypuf.attack.LRAttack2021(crps, seed=seed_instance_train, k = k, bs = num_bs, lr=.001, epochs=num_epochs)
+	attack.fit()
+
+	model = attack.model
+
+
+	N_test = 1000
+	challenges_test = pypuf.io.random_inputs(n=n, N=N_test, seed=seed_instance_test)
+
+	crps_reference = crps_generation(puf, challenges_test, N_test)
+	crps_model = pypuf.io.ChallengeResponseSet(challenges_test, model.eval(challenges_test))
+
+	accuracy = pypuf.metrics.similarity_data(crps_reference.responses, crps_model.responses)
+
+	return accuracy
+
+# Template of usage
+if __name__ == '__main__':
+	n = 32
+	N = int(260e3)
+	weight = 8
+	puf_lbf = linear_boolean_function(n,weight)
+
+	accuracy_c = instance_one_lbf_attack(puf_lbf, n, N)
+	accuracy_h = instance_one_hybrid_lbf_attack(puf_lbf, n, N)
+	print(accuracy_c)
+	print(accuracy_h)
+	
+	
+
+
+	
 
