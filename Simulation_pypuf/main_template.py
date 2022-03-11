@@ -7,12 +7,66 @@ import math
 import sys, os
 from pathlib import Path
 
-from xorpuf_attack import *
 from apuf_attack import *
 from util import *
 
-if __name__ == '__main__':
+
+def template(n, noisiness_cpuf, bias, position, k, steps, coe_hdata):
+
+	# Times of repeat experiment 
+	repeat_experiment = 10
+
+	# Step 1: Create an instance of PUF
+
+	weight_bias_initial = 0
 	
+	# puf_bit = instance_one_puf(n, noisiness_cpuf, weight_bias_initial, bias, k)
+	# puf_basis = instance_one_puf(n, noisiness_cpuf, weight_bias_initial, bias, k)
+
+	seed_instance_bit = int.from_bytes(os.urandom(4), "big")
+	seed_instance_basis = int.from_bytes(os.urandom(4), "big")
+
+	if k == 1:
+		puf_bit = pypuf.simulation.ArbiterPUF(n=n, noisiness=noisiness_cpuf, seed=seed_instance_bit)
+		puf_basis = pypuf.simulation.ArbiterPUF(n=n, noisiness=noisiness_cpuf, seed=seed_instance_basis)
+	else:
+		puf_bit = pypuf.simulation.XORArbiterPUF(n=n, noisiness=noisiness_cpuf, seed=seed_instance_bit, k=k)
+		puf_basis = pypuf.simulation.XORArbiterPUF(n=n, noisiness=noisiness_cpuf, seed=seed_instance_basis, k=k)
+	
+
+	crps_bit_threshold,_ = basis_prediction_dict(n,k)
+
+	
+	# step 2: Obatin simluiation result of such puf under logistic regresssion attack
+	
+	crps = crp_apuf(n, steps)
+	accuracy_cpuf_1 = instance_one_apuf_attack_n(puf_bit, crps, repeat_experiment, steps)
+	input("Press Enter to continue...")
+	accuracy_hpuf_1 = instance_one_hybrid_apuf_attack_n(coe_hdata, puf_bit, puf_basis, crps, position, repeat_experiment, steps)
+	
+
+	if position == 'basis':
+		crps += crps_bit_threshold
+	
+	np.save('./data/'+str(n)+'n_xorpuf'+str(k)+'_'+position+'_crps.npy', crps)
+	# np.save('./data/'+str(n)+'c_xorpuf'+str(k)+'_a.npy', accuracy_cpuf_1)
+	np.save('./data/'+str(n)+'h_xorpuf'+str(k)+'_'+position+'_a.npy', accuracy_hpuf_1)
+
+	
+
+	
+	# Step 3: Plot 
+
+	plt.title("Modeling attack on CPUF")
+	plt.plot(crps, accuracy_cpuf_1, label='cpuf')
+	plt.plot(crps, accuracy_hpuf_1, label='hpuf')
+	plt.xlabel("Number of CRPs")
+	plt.ylabel("Accuracy (x100%)")
+	plt.legend()
+	plt.show()
+
+
+if __name__ == '__main__':
 
 	'''
 	To run the template program, run the command in the termninal as follows: 
@@ -32,76 +86,26 @@ if __name__ == '__main__':
  	variable4: basis, bit or bothaccuracy of hpuf, it defaults to 'bit'
  	variable5: kXORPUF
 	'''
-	if len(sys.argv) == 5:
+	# Enable GPU/CPU (optional)
+	# os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+	os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
+	if len(sys.argv) == 6:
 		n = int(sys.argv[1])
 		noisiness = float(sys.argv[2])
 		bias = float(sys,argv[3])
 		position = sys.argv[4]
 		k = int(sys.argv[5])
 	else:
-		n = 32
-		noisiness = 0.1	
-		bias_1 = 0.5
-		bias_2 = 0.53
-		bias_3 = 0.55
+		n = 128
+		noisiness_cpuf = 0
+		bias = 0.5
 		position = 'bit'
 		k = 5
 
+	steps = 1
+	coe_hdata = 0.85
+
 	Path("./data").mkdir(parents=True, exist_ok=True)
-	# Times of repeat experiment 
-	repeat_experiment = 3
-	'''
-	Step 1: Create an instance of PUF
-	'''
-	weight_bias_initial = 0
-	# puf_1 = instance_one_puf(n, noisiness, weight_bias_initial, bias_1, k)
-	# puf_2 = instance_one_puf(n, noisiness, weight_bias_initial, bias_2, k)
-	# puf_3 = instance_one_puf(n, noisiness, weight_bias_initial, bias_3, k)
-
-	puf_bit = instance_one_puf(n, noisiness, weight_bias_initial, bias_2, k)
-	puf_basis = instance_one_puf(n, noisiness, weight_bias_initial, bias_2, k)
-	# instances = [puf_bit, puf_basis]
-	# print(pypuf.metrics.uniqueness(instances, seed=31214, N=1000))
-	# sys.exit()
+	template(n, noisiness_cpuf, bias, position, k, steps, coe_hdata)
 	
-	'''
-	Step 2: Obatin simluiation result of such puf under logistic regresssion attack
-	'''
-	crps = crp_apuf(n, steps=20)
-	# accuracy_cpuf = instance_one_apuf_attack_n(puf, crps, repeat_experiment, steps=10)
-	# accuracy_cpuf_1 = instance_one_apuf_attack_n(puf_bit, crps, repeat_experiment, steps=20)
-	accuracy_cpuf_2 = instance_one_apuf_attack_n(puf_bit, crps, repeat_experiment, steps=20)
-	# accuracy_cpuf_3 = instance_one_apuf_attack_n(puf_bit, crps, repeat_experiment, steps=10)
-	# accuracy_hpuf_1 = instance_one_hybrid_apuf_attack_n(puf_bit, puf_basis, crps, position, repeat_experiment, steps=20)
-	accuracy_hpuf_2 = instance_one_hybrid_apuf_attack_n(puf_bit, puf_basis, crps, position, repeat_experiment, steps=20)
-	# accuracy_hpuf_3 = instance_one_hybrid_apuf_attack_n(puf_bit, puf_basis, crps, position, repeat_experiment, steps=10)
-
-
-	np.save('./data/crps_single_apuf_'+str(n)+'_'+str(k)+'.npy', crps)
-	# np.save('./data/accuracy_cpuf_single_apuf_'+str(n)+'_'+str(bias_1)+'_'+str(k)+'.npy', accuracy_cpuf_1)
-	np.save('./data/accuracy_cpuf_single_apuf_'+str(n)+'_'+str(bias_2)+'_'+str(k)+'.npy', accuracy_cpuf_2)
-	# np.save('./data/accuracy_cpuf_single_apuf_'+str(n)+'_'+str(bias_3)+'_'+str(k)+'.npy', accuracy_cpuf_3)
-	# np.save('./data/accuracy_hpuf_single_apuf_'+str(n)+'_'+str(bias_1)+'_'+position+'_'+str(k)+'.npy', accuracy_hpuf_1)
-	np.save('./data/accuracy_hpuf_single_apuf_'+str(n)+'_'+str(bias_2)+'_'+position+'_'+str(k)+'.npy', accuracy_hpuf_2)
-	# np.save('./data/accuracy_hpuf_single_apuf_'+str(n)+'_'+str(bias_3)+'_'+position+'_'+str(k)+'.npy', accuracy_hpuf_3)
-
-
-	'''
-	Step 3: Plot 
-	'''
-	# plt.plot(crps, accuracy_cpuf, label = 'cpuf')
-	# plt.plot(crps, accuracy_hpuf_1, label = 'hpuf_1')
-	plt.title("Modeling attack on CPUF")
-	# plt.plot(crps, accuracy_cpuf_1, label='cpuf_bias_0.5')
-	plt.plot(crps, accuracy_cpuf_2, label='cpuf_bias_0.53')
-	# plt.plot(crps, accuracy_cpuf_3, label='cpuf_bias_0.6')
-	# plt.plot(crps, accuracy_hpuf_1, label='hpuf_bit_bias_0.5')
-	plt.plot(crps, accuracy_hpuf_2, label='hpuf_bit_bias_0.53')
-	# plt.plot(crps, accuracy_hpuf_3, label='hpuf_bit_bias_0.6')
-	plt.xlabel("Number of CRPs")
-	plt.ylabel("Accuracy (x100%)")
-	plt.legend()
-	plt.show()
-	
-
-
