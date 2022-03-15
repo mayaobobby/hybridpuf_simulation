@@ -2,41 +2,35 @@
 import random
 import numpy as np
 
-def hybrid_flipping(value_original, bias):
+def hybrid_flipping(value_original, coe_hpuf):
 	value_updated = value_original
 
 	value_p = random.random()
 
-	if value_p >= bias:
+	if value_p >= coe_hpuf:
 		value_updated = -value_original
 	else:
 		pass
 
 	return value_updated
 
-def random_bit(bias):
-	value_p = random.random()
-
-	if value_p >= bias:
-		value_updated = 1.0
-	else:
-		value_updated = -1.0
-
-	return value_updated	
-
+'''
+# of CRPs. Users can adapt their needs
+'''
 def crp_apuf(n, steps=10):
 	crps = np.array([])
 	N = 1000
 	step = 0
 	if n == 32:
-		step = 3e3
+		step = 10e3
 	elif n == 64:
-		step = 20e3
+		step = 65e3
 	elif n == 128:
-		step = 50e3
+		step = 500e3
 
 	for i in range(steps):
 		crps = np.append(crps, N)
 		N = N + step
 
 	return crps
+
