@@ -18,3 +18,5 @@ Change this file to simulate of different scenarios.
 
 ## Simualtion with netsquid
 
+An easy demo of 2-party Hybrid PUF-based Authentication Protocol (BB84 states) with Lockdown Technique is shown in ```./template.py```. (TBA: Loss/noise simulations and adversarial model)
+

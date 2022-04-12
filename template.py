@@ -259,8 +259,7 @@ class ClientProtocol(NodeProtocol):
 class QubitConnection(Connection):
 	def __init__(self, length, dephase_rate, loss=(0, 0), name='QubitConn'):
 		super().__init__(name=name)
-		error_models = {'quantum_noise_model': DephaseNoiseModel(dephase_rate=dephase_rate,
-																 time_independent=False),
+		error_models = {'quantum_noise_model': DephaseNoiseModel(dephase_rate=dephase_rate, time_independent=False),
 						'delay_model': FibreDelayModel(length=length),
 						'quantum_loss_model': FibreLossModel(p_loss_init=loss[0], p_loss_length=loss[1])
 						}
@@ -318,6 +317,8 @@ if __name__ == '__main__':
 	n = generate_network()
 	node_a = n.get_node("alice")
 	node_b = n.get_node("bob")
+
+
 
 	p1 = ServerProtocol(node_a)
 	p2 = ClientProtocol(node_b)
