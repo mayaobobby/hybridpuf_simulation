@@ -132,6 +132,8 @@ dmypy.json
 
 # Customized
 Simulation_pypuf/data/*
+Simulation_pypuf/guassian_elimination/*
+Simulation_pypuf/reference_program/*
 
 # Mac
 .DS_Store

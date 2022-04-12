@@ -19,6 +19,14 @@ def select_odd_responses(responses, num_crps):
                 odd_responses[k][int(i/2)] = responses[k][i].copy()
     return odd_responses
 
+def instance_one_opuf_crps(puf, num_crps):
+	seed_instance = int.from_bytes(os.urandom(4), "big")
+	crps = pypuf.io.ChallengeResponseSet.from_simulation(puf, N=num_crps, seed=seed_instance)
+	# threshold = lambda r: np.sign(r - np.quantile(r.flatten(), .5))
+
+	# crps.responses = threshold(crps.responses)
+	return crps
+
 def instance_one_opuf_attack(puf, num_crps):
 	seed_instance = int.from_bytes(os.urandom(4), "big")
 	crps = pypuf.io.ChallengeResponseSet.from_simulation(puf, N=num_crps, seed=seed_instance)
@@ -63,8 +71,6 @@ def instance_one_opuf_attack_n(puf, crps, repeat_experiment, steps=10):
 	return accuracy_opuf
 
 def instance_one_hybrid_opuf_attack(puf, num_crps):
-	# bias_basis = puf_bias(puf_basis)
-	# bias_bit = puf_bias(puf_bit)
 	seed_instance = int.from_bytes(os.urandom(4), "big")
 	crps = pypuf.io.ChallengeResponseSet.from_simulation(puf, N=num_crps, seed=seed_instance)
 
@@ -168,10 +174,33 @@ def crp_opuf(n, steps=10):
 	return crps
 
 
+if __name__ == '__main__':
+	n_size = 32
+	m_size = 1
+	seed_instance = int.from_bytes(os.urandom(4), "big")
+	puf_opt = pypuf.simulation.IntegratedOpticalPUF(n=n_size,m=m_size, seed=seed_instance)
+
+
+	num_crps = 10000
+
+	crps = instance_one_opuf_crps(puf_opt, num_crps)
+
+
+	''' 
+	Description: It shows that the distribution intensity of electronmagnetic
+	field is not uniform, which leads to a diffculty of MUB encoding with higher dimension.
+	'''
+	val = 0. # the data to appear on the y-axis(start point).
+	ar = crps.responses.flatten()
+	# print(ar)
+	plt.plot(ar, np.zeros_like(ar) + val, 'x')
+	plt.show()
+
 
 
 '''
 template of usage
+'''
 '''
 if __name__ == '__main__':
 	n_size = 32
@@ -181,31 +210,31 @@ if __name__ == '__main__':
 
 	repeat_experiment = 1
 
-	crps = crp_opuf(n_size, steps=10)
+	num_crps = crp_opuf(n_size, steps=10)
 
 
 	# accuracy_c = instance_one_opuf_attack(puf_opt, N_sample)
 	# accuracy_h = instance_one_hybrid_opuf_attack(puf_opt, N_sample)
 
-	accuracy_c = instance_one_opuf_attack_n(puf_opt, crps, repeat_experiment)
+	accuracy_c = instance_one_opuf_attack_n(puf_opt, num_crps, repeat_experiment)
 	print(accuracy_c)
-	#accuracy_h1 = instance_one_hybrid_opuf_attack_n(puf_opt, crps, repeat_experiment, "both")
+	#accuracy_h1 = instance_one_hybrid_opuf_attack_n(puf_opt, num_crps, repeat_experiment, "both")
 	#print(accuracy_h1)
-	accuracy_h2 = instance_one_hybrid_opuf_attack_n(puf_opt, crps, repeat_experiment, "bit")
+	accuracy_h2 = instance_one_hybrid_opuf_attack_n(puf_opt, num_crps, repeat_experiment, "bit")
 	print(accuracy_h2)
 
-	np.save('./data/crps_opuf_'+str(n_size)+'_'+str(m_size)+'.npy', crps)
+	np.save('./data/crps_opuf_'+str(n_size)+'_'+str(m_size)+'.npy', num_crps)
 	np.save('./data/classical_opuf_accuracy'+str(n_size)+'_'+str(m_size)+'.npy', accuracy_c)
 	#np.save('./data/hybrid_opuf_accuracy'+str(n)+'_'+str(m)+'.npy', accuracy_h2)
 	np.save('./data/hybrid_opuf_odd_accuracy'+str(n_size)+'_'+str(m_size)+'.npy', accuracy_h2)
 
 	plt.title('Optical PUF with Classical/Hybrid Construction')
-	plt.plot(crps, accuracy_c, label='cpuf')
-	plt.plot(crps, accuracy_h2, label='hpuf_odd')
+	plt.plot(num_crps, accuracy_c, label='cpuf')
+	plt.plot(num_crps, accuracy_h2, label='hpuf_odd')
 	plt.xlabel('Number of CRPs')
 	plt.ylabel('Accuracy (x100%)')
 	plt.legend()
 	plt.show()
 
-
+'''
 	

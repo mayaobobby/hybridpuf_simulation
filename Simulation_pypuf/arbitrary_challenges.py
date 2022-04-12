@@ -15,6 +15,13 @@ import scipy.stats
 def random_inputs(n, N, seed):
     return 2 * np.random.RandomState(seed).randint(0, 2, (N, n)) - 1
 
+def random_challenges_crps(puf, n, N, challenges):
+	# challenges = pypuf.io.random_inputs(n, N, seed_challenges)
+	responses = puf.r_eval(1,challenges)
+	crps = pypuf.io.ChallengeResponseSet(challenges, responses)
+
+	return crps
+
 def non_uniform_challenges_crps(puf, n, N, seed, quantile):
 	challenges =  np.random.random_sample((N,n))
 	challenges_postprocessing = np.sign(challenges - quantile)
@@ -45,6 +52,20 @@ def normal_challenges_crps(puf, n, N, seed, mu, sigma):
 	return crps
 
 # Template of usage
+if __name__ == '__main__':
+	seed_puf = int.from_bytes(os.urandom(4), "big")
+	seed_challenges = int.from_bytes(os.urandom(4), "big")
+	challenges = pypuf.io.random_inputs(n, N, seed_challenges)
+	challenges_postprocessing = (1 - challenges) // 2
+	# print(challenges_postprocessing)
+	puf = pypuf.simulation.XORArbiterPUF(n=32, noisiness=0, seed=seed_puf, k=5)
+
+
+	crps = random_challenges_crps(puf, 32, 10, challenges)
+	print('challenges:', crps.challenges)
+	print('responses:', crps.responses)
+
+
 '''
 if __name__ == '__main__':
 
