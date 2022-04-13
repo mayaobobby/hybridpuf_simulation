@@ -34,7 +34,7 @@ A evaluation of different quantum encoding strategies can be done regardless of 
 
 ## Simulation with netsquid
 
-An easy demo of 2-party Hybrid PUF-based Authentication Protocol (BB84 states) with Lockdown Technique is shown in ```./template.py```. (TBA: Loss/noise simulations and adversarial model)
+An easy demo of 2-party Hybrid PUF-based Authentication Protocol (BB84 states) with Lockdown Technique is shown in ```./hlpuf_bb84.py```. (TBA: Loss/noise simulations and adversarial model)
 
 ## Contributors
 * Kaushik Chakraborty
