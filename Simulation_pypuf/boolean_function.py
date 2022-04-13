@@ -8,23 +8,27 @@ import os, sys, random
 
 import numpy as np
 
-# Pseudorandom Linear Boolean Function
+'''
+Description: Pseudorandom Linear Boolean Function
+'''
 def linear_boolean_function(n, weight):
 	a = np.repeat(1,weight)
 	b = np.repeat(0,n-weight)
 	function_generation = np.random.permutation(np.concatenate((a,b)))
 
 	return function_generation
-
-# Generation of CRPs
+'''
+Description: Generation of CRPs
+'''
 def crps_generation(puf_lbf, challenges, N): 
 	challenges_update = (challenges+1)/2
 	responses = np.reshape(2*(np.inner(puf_lbf, challenges_update) % 2)-1, (N,1,1))
 	crps = pypuf.io.ChallengeResponseSet(challenges, responses)
 	return crps
 
-
-# Logistic Regression algorithm with Linear Boolean Function
+'''
+Description: Logistic Regression algorithm with Linear Boolean Function
+'''
 def lbf_lr(puf_lbf, k, crps_training, crps_test):
 	seed_instance_train = int.from_bytes(os.urandom(4), "big")
 	seed_instance_test = int.from_bytes(os.urandom(4), "big")
@@ -37,8 +41,9 @@ def lbf_lr(puf_lbf, k, crps_training, crps_test):
 	accuracy = pypuf.metrics.similarity_data(crps_test.responses, model.eval(crps_test.challenges))
 
 	return accuracy
-
-# LMN algorithm with Linear Boolean Function
+'''
+Description: LMN algorithm with Linear Boolean Function
+'''
 def lbf_lmn(puf_lbf, crps):
 	attack = pypuf.attack.LMNAttack(crps, deg=2)
 
@@ -56,8 +61,9 @@ def lbf_lmn(puf_lbf, crps):
 
 	return accuracy
 
-
-# Logistic regression on Linear Boolean function with classical structure
+'''
+Description: Logistic regression on Linear Boolean function with classical structure
+'''
 def lbf_lr_cpuf(puf_lbf, N, challenges, k):
 	
 	crps = crps_generation(puf_lbf, challenges, N)
@@ -67,7 +73,9 @@ def lbf_lr_cpuf(puf_lbf, N, challenges, k):
 
 	return accuracy
 
-# Logistic regression on Linear Boolean function with hybrid structure
+'''
+Description: Logistic regression on Linear Boolean function with hybrid structure
+'''
 def lbf_lr_hpuf(puf_lbf, N, challenges, k):
 	crps = crps_generation(puf_lbf, challenges, N)
 	crps_training, crps_test = crps[:int(N*0.9),:], crps[int(N*0.9):,:]
@@ -93,7 +101,6 @@ def hybrid_flipping_0(value_original, noisiness_hdata):
 
 
 # Template of usage
-
 if __name__ == '__main__':
 	n = 8
 	N = int(16)

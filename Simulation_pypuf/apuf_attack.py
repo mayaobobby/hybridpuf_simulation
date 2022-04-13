@@ -115,6 +115,9 @@ def instance_one_apuf_attack(puf, num_crps, num_bs, num_epochs):
 	return accuracy
 
 
+'''
+Description: Arbiter-based PUF under ML attacks with classical structure. (one chain with repetitions)
+'''
 def instance_one_apuf_attack_n(puf, crps, repeat_experiment, steps):
 	accuracy_cpuf = np.array([])
 	for i in range(steps):
@@ -194,7 +197,9 @@ def instance_one_hybrid_apuf_attack(coe_hdata, puf_bit, puf_basis, num_crps, pos
 
 	return accuracy
 
-
+'''
+Description: Arbiter-based PUF under ML attacks with hybrid structure. (one chain with repetitions)
+'''
 def instance_one_hybrid_apuf_attack_n(coe_hdata, puf_bit, puf_basis, crps, position, repeat_experiment, steps):
 	accuracy_hpuf = np.array([])
 	for i in range(steps):

@@ -235,6 +235,4 @@ if __name__ == '__main__':
 	plt.ylabel('Accuracy (x100%)')
 	plt.legend()
 	plt.show()
-
 '''
-	

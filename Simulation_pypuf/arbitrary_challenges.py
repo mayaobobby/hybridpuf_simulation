@@ -11,10 +11,9 @@ import sys, os, random
 
 import scipy.stats
 
-# Default for radnom challenges
-def random_inputs(n, N, seed):
-    return 2 * np.random.RandomState(seed).randint(0, 2, (N, n)) - 1
-
+'''
+Description: CRPs generation with uniform random distributed challenges
+'''
 def random_challenges_crps(puf, n, N, challenges):
 	# challenges = pypuf.io.random_inputs(n, N, seed_challenges)
 	responses = puf.r_eval(1,challenges)
@@ -22,6 +21,9 @@ def random_challenges_crps(puf, n, N, challenges):
 
 	return crps
 
+'''
+Description: CRPs generation with a biased challenges (# of -1/1 for each challenge)
+'''
 def non_uniform_challenges_crps(puf, n, N, seed, quantile):
 	challenges =  np.random.random_sample((N,n))
 	challenges_postprocessing = np.sign(challenges - quantile)
@@ -41,6 +43,9 @@ def vec_bin_array(arr, m):
 
     return ret 
 
+'''
+Description: CRPs generation with normal distribution challenges
+'''
 def normal_challenges_crps(puf, n, N, seed, mu, sigma):
 
 	challenges = scipy.stats.norm.ppf(np.random.random(N), loc=mu, scale=sigma).astype(np.uintc)
@@ -53,25 +58,10 @@ def normal_challenges_crps(puf, n, N, seed, mu, sigma):
 
 # Template of usage
 if __name__ == '__main__':
-	seed_puf = int.from_bytes(os.urandom(4), "big")
-	seed_challenges = int.from_bytes(os.urandom(4), "big")
-	challenges = pypuf.io.random_inputs(n, N, seed_challenges)
-	challenges_postprocessing = (1 - challenges) // 2
-	# print(challenges_postprocessing)
-	puf = pypuf.simulation.XORArbiterPUF(n=32, noisiness=0, seed=seed_puf, k=5)
-
-
-	crps = random_challenges_crps(puf, 32, 10, challenges)
-	print('challenges:', crps.challenges)
-	print('responses:', crps.responses)
-
-
-'''
-if __name__ == '__main__':
 
 	n = 8
 	noisiness = 0
-	bias_challenge = 0.7
+	bias_challenge = 1
 	N = int(20e3)
 
 	seed_instance = int.from_bytes(os.urandom(4), "big")
@@ -80,7 +70,6 @@ if __name__ == '__main__':
 	# crps = non_uniform_challenges_crps(apuf, n, N, seed_instance, bias_challenge)
 	# print(crps.challenges)
 
-	mu = 3000
-	sigma = 25
-	crps = normal_challenges_crps(apuf, n, N, seed_instance, mu, sigma)
-'''
+	# mu = 3000
+	# sigma = 25
+	# crps = normal_challenges_crps(apuf, n, N, seed_instance, mu, sigma)
