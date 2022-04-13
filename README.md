@@ -1,4 +1,4 @@
-# HybridPUF Simulation
+# Hybrid Locked PUF Simulation
 A simulation of hybrid PUF (HPUF) performance with [pypuf](https://github.com/nils-wisiol/pypuf) and [netsquid](https://netsquid.org) in python inspired by the paper ["Hybrid PUF: A Novel Way to Enhance the Security of Classical PUFs"](https://arxiv.org/abs/2110.09469)
 
 The idea of HPUF is to enhance the security of classical PUF by proposing quantum encoding on classical output of CPUF from adversary with modeling attacks. Meanwhile, a Lockdown technique is introduced to protect the HPUF authentication protocol from adaptive adversaries.
@@ -19,7 +19,7 @@ We give a general description of a hybrid PUF-based authentication protocol with
 
 **Authentication Protocol:**
 
-* **Step 1:** The server randomly choose a CRP and split the response equally into two partition.
+* **Step 1:** The server randomly chooses a CRP and splits the response equally into two partitions.
 * **Step 2:** The server encodes the first partition of response into quantum state and issues the joint classical challenge and quantum state to the client.           
 * **Step 3&4:** The client receives the joint state and queries CPUF with challenge and obtains the response and measures every single qubit of received quantum state with the corresponding bases value of the 1st part of response. 
 * **Step 5&6:** Authentication aborts if measurement result doesn't equal to the corresponding bits values bits of the 1st part of response. Otherwise the client encodes the second partition of response into quantum states and sends back to the server.
