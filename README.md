@@ -4,7 +4,7 @@ A simulation of hybrid PUF (HPUF) performance with [pypuf](https://github.com/ni
 The idea of HPUF is to enhance the security of classical PUF by proposing quantum encoding on classical output of CPUF from adversary with modeling attacks. Meanwhile, a Lockdown technique is introduced to protect the HPUF authentication protocol from adaptive adversaries.
 
 ## Protocol Description:
-We give a general description of a hybrid PUF-based authentication protocol (shown above) with lockdown technique between a server and a client. See [paper](https://arxiv.org/abs/2110.09469) for more details.
+We give a general description of a hybrid PUF-based authentication protocol with lockdown technique between a server and a client. See [paper](https://arxiv.org/abs/2110.09469) for more details.
 
 <img alt="alt_text" width="2000px" src="images/HPUF_protocol.png" />
 
