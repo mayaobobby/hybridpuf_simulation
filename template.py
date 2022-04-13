@@ -16,10 +16,11 @@ from netsquid.qubits import StateSampler
 
 
 '''
+Parameter of CPUF:
 n: input size
 m: output size
 N: # of CRPs
-k: XORPUF parameter
+k: For XORPUF (k-APUF in parallel)
 puf_noisiness: CPUF device noise
 '''
 n = 32 
@@ -30,7 +31,7 @@ k = 5
 puf_noisiness = 0
 
 '''
-CPUF multi instance (m>1)
+CPUF instance (n-bit challenge, m-bit response)
 '''
 def CPUF_gen(n, m, N, k, puf_noisiness):
 	seed_puf_instances, puf_instances, seed_challenges_instances = [], [], []
@@ -53,13 +54,13 @@ print('Response:', responses_pp)
 print('ResponseAtoB:', responses_pp_atob)
 print('ResponseBtoA:', responses_pp_btoa)
 
-
+"""
+Factory to create a quantum processor for each end node.
+Has three memory positions and the physical instructions necessary
+for teleportation.
+"""
 def create_processor(dephase_rate, t_times, memory_size, add_qsource=False, q_source_probs=[1., 0.]):
-	"""
-	Factory to create a quantum processor for each end node.
-	Has three memory positions and the physical instructions necessary
-	for teleportation.
-	"""
+	
 	gate_noise_model = None
 	memory_noise_model = None
 	# gate_noise_model = DephaseNoiseModel(dephase_rate, time_independent=False)
@@ -111,11 +112,10 @@ def SendBehavior():
 def RecvBehavior():
 
 	return None
-
+"""
+Program to encode a bit according to a secret key and a basis.
+"""
 class EncodeQubitProgram(QuantumProgram):
-	"""
-	Program to encode a bit according to a secret key and a basis.
-	"""
 
 	def __init__(self, base, bit):
 		super().__init__()
