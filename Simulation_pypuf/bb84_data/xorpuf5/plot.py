@@ -7,7 +7,7 @@ import sys, os
 def plot_bit(n):
 	a = np.load('./'+str(n)+'n_xorpuf5_crps.npy')
 	b = np.load('./'+str(n)+'c_xorpuf5_a.npy')
-	c = np.load('./'+str(n)+'h_xorpuf5_a.npy')
+	c = np.load('./'+str(n)+'h_xorpuf5_bit_a.npy')
 	print(a)
 	print(b)
 	print(c)
@@ -23,7 +23,7 @@ def plot_bit(n):
 def plot_basis(n):
 	a = np.load('./'+str(n)+'n_xorpuf5_crps.npy')
 	b = np.load('./'+str(n)+'c_xorpuf5_a.npy')
-	c = np.load('./'+str(n)+'h_xorpuf5_a.npy')
+	c = np.load('./'+str(n)+'h_xorpuf5_bit_a.npy')
 	d = np.load('./'+str(n)+'h_xorpuf5_basis_a.npy')
 
 
@@ -37,9 +37,9 @@ def plot_basis(n):
 
 	a_final = np.concatenate((a[:count],a+crps_bit_threshold))
 
-	b_add = np.random.normal(b[b.size-1], 0.001, a_final.size-a.size)
+	b_add = np.repeat(None, a_final.size-a.size)
 	c_add = np.repeat(None, a_final.size-a.size)
-	d_add = np.random.normal(0.5, 0.001, count)
+	d_add = np.repeat(None, count)
 
 	b_final = np.concatenate((b,b_add))
 	c_final = np.concatenate((c,c_add))
@@ -58,7 +58,7 @@ def plot_basis(n):
 	plt.show()
 
 if __name__ == '__main__':
-	n = 128
+	n = 64
 	position = 'basis'
 	if position == 'bit':
 		plot_bit(n)

@@ -11,39 +11,6 @@ import sys, os, random
 
 from util import *
 
-parampuf_dic = {
-	'n64k4': './state_value/xorpuf_4_collection_bit/64h_xorpuf4_a.npy',
-	'n128k4': './state_value/xorpuf_4_collection_bit/128h_xorpuf4_a.npy',
-	'n64k5': './state_value/xorpuf_5_collection_bit/64h_xorpuf5_a.npy',
-	'n128k5': './state_value/xorpuf_5_collection_bit/128h_xorpuf5_a.npy'
-}
-
-crps_dic = {
-	'n64k4': './state_value/xorpuf_4_collection_bit/64n_xorpuf4_crps.npy',
-	'n128k4': './state_value/xorpuf_4_collection_bit/128n_xorpuf4_crps.npy',
-	'n64k5': './state_value/xorpuf_5_collection_bit/64n_xorpuf5_crps.npy',
-	'n128k5': './state_value/xorpuf_5_collection_bit/128n_xorpuf5_crps.npy'
-}
-
-'''
-Description: Dictionary of CRPs & accuracy on state value
-'''
-def basis_prediction_dict(n,k):
-	keyword_accuracy_bit = 'n'+str(n)+'k'+str(k)
-	accuracy_bit = np.load(parampuf_dic[keyword_accuracy_bit])
-	
-	keyword_crps = 'n'+str(n)+'k'+str(k)
-	crps_bit = np.load(crps_dic[keyword_crps])
-
-	for i in range(crps_bit.size):
-		if accuracy_bit[i] >.95:
-			crps_bit_threshold = crps_bit[i]
-			crps_bit_threshold -= 1000
-			accuracy_bit_threshold = accuracy_bit[i]
-			break
-
-	return crps_bit_threshold, accuracy_bit_threshold
-
 '''
 Description: Return the uniqness of pufs
 '''
@@ -151,7 +118,7 @@ def instance_two_apuf_attack(puf_bit, puf_basis, crps, repeat_experiment):
 '''
 Description: Arbiter PUF under ML attacks with hybrid structure. (one chain)
 '''
-def instance_one_hybrid_apuf_attack(coe_hdata, puf_bit, puf_basis, num_crps, position, num_bs, num_epochs):
+def instance_one_hybrid_apuf_attack(success_prob, puf_bit, puf_basis, num_crps, position, num_bs, num_epochs):
 	bias_basis = puf_bias(puf_basis)
 	# bias_bit = puf_bias(puf_bit)
 	seed_basis = int.from_bytes(os.urandom(4), "big")
@@ -171,7 +138,7 @@ def instance_one_hybrid_apuf_attack(coe_hdata, puf_bit, puf_basis, num_crps, pos
 		bit value 
 		'''
 		for i in range(crps_bit.responses.size):
-			crps_bit.responses[i][0][0] = hybrid_flipping(crps_bit.responses[i][0][0], coe_hdata)
+			crps_bit.responses[i][0][0] = hybrid_flipping(crps_bit.responses[i][0][0], success_prob)
 			
 		# print('Similarity basis:', pypuf.metrics.similarity_data(crps_basis.responses, res_basis_cpy))		
 		# print('Similarity bit:', pypuf.metrics.similarity_data(crps_bit.responses, res_bit_cpy))	
@@ -185,9 +152,8 @@ def instance_one_hybrid_apuf_attack(coe_hdata, puf_bit, puf_basis, num_crps, pos
 		'''
 		basis value
 		'''	
-		_,accuracy_bit_threshold = basis_prediction_dict(puf_basis.n,puf_basis.k)
 		for i in range(crps_basis.responses.size):
-			crps_basis.responses[i][0][0] = hybrid_flipping(crps_basis.responses[i][0][0], coe_hdata*accuracy_bit_threshold)
+			crps_basis.responses[i][0][0] = hybrid_flipping(crps_basis.responses[i][0][0], success_prob)
 
 		attack = pypuf.attack.LRAttack2021(crps_basis, seed=seed_instance_train, k=puf_basis.k, bs=num_bs, lr=.001, epochs=num_epochs)
 		attack.fit()
@@ -200,13 +166,13 @@ def instance_one_hybrid_apuf_attack(coe_hdata, puf_bit, puf_basis, num_crps, pos
 '''
 Description: Arbiter-based PUF under ML attacks with hybrid structure. (one chain with repetitions)
 '''
-def instance_one_hybrid_apuf_attack_n(coe_hdata, puf_bit, puf_basis, crps, position, repeat_experiment, steps):
+def instance_one_hybrid_apuf_attack_n(success_prob, puf_bit, puf_basis, crps, position, repeat_experiment, steps):
 	accuracy_hpuf = np.array([])
 	for i in range(steps):
 		instance_accuracy_hpuf_repeat = np.zeros(repeat_experiment)
 		N = int(crps[i])
 		for j in range(repeat_experiment):
-			instance_accuracy_hpuf_repeat[j] = instance_one_hybrid_apuf_attack(coe_hdata, puf_bit, puf_basis, N, position, num_bs=1000, num_epochs=100)
+			instance_accuracy_hpuf_repeat[j] = instance_one_hybrid_apuf_attack(success_prob, puf_bit, puf_basis, N, position, num_bs=1000, num_epochs=100)
 		print(instance_accuracy_hpuf_repeat)
 		print("HPUF Median:", np.median(instance_accuracy_hpuf_repeat))
 		instance_accuracy_hpuf = np.mean(instance_accuracy_hpuf_repeat)	
@@ -216,103 +182,8 @@ def instance_one_hybrid_apuf_attack_n(coe_hdata, puf_bit, puf_basis, crps, posit
 
 	return accuracy_hpuf
 
-def template(n, noisiness_cpuf, bias, position, k, steps, coe_hdata):
-
-	# Times of repeat experiment 
-	repeat_experiment = 10
-
-	# Step 1: Create an instance of PUF
-
-	weight_bias_initial = 0
-	
-	# puf_bit = instance_one_puf(n, noisiness_cpuf, weight_bias_initial, bias, k)
-	# puf_basis = instance_one_puf(n, noisiness_cpuf, weight_bias_initial, bias, k)
-
-	seed_instance_bit = int.from_bytes(os.urandom(4), "big")
-	seed_instance_basis = int.from_bytes(os.urandom(4), "big")
-
-	if k == 1:
-		puf_bit = pypuf.simulation.ArbiterPUF(n=n, noisiness=noisiness_cpuf, seed=seed_instance_bit)
-		puf_basis = pypuf.simulation.ArbiterPUF(n=n, noisiness=noisiness_cpuf, seed=seed_instance_basis)
-	else:
-		puf_bit = pypuf.simulation.XORArbiterPUF(n=n, noisiness=noisiness_cpuf, seed=seed_instance_bit, k=k)
-		puf_basis = pypuf.simulation.XORArbiterPUF(n=n, noisiness=noisiness_cpuf, seed=seed_instance_basis, k=k)
-	
-
-	crps_bit_threshold,_ = basis_prediction_dict(n,k)
-
-	
-	# step 2: Obatin simluiation result of such puf under logistic regresssion attack
-	
-	crps = crp_apuf(n, steps)
-	accuracy_cpuf_1 = instance_one_apuf_attack_n(puf_bit, crps, repeat_experiment, steps)
-	input("Press Enter to continue...")
-	accuracy_hpuf_1 = instance_one_hybrid_apuf_attack_n(coe_hdata, puf_bit, puf_basis, crps, position, repeat_experiment, steps)
-	
-
-	if position == 'basis':
-		crps += crps_bit_threshold
-	
-	np.save('./data/'+str(n)+'n_xorpuf'+str(k)+'_'+position+'_crps.npy', crps)
-	# np.save('./data/'+str(n)+'c_xorpuf'+str(k)+'_a.npy', accuracy_cpuf_1)
-	np.save('./data/'+str(n)+'h_xorpuf'+str(k)+'_'+position+'_a.npy', accuracy_hpuf_1)
-
-	
-
-	
-	# Step 3: Plot 
-
-	plt.title("Modeling attack on CPUF")
-	plt.plot(crps, accuracy_cpuf_1, label='cpuf')
-	plt.plot(crps, accuracy_hpuf_1, label='hpuf')
-	plt.xlabel("Number of CRPs")
-	plt.ylabel("Accuracy (x100%)")
-	plt.legend()
-	plt.show()
 
 
-if __name__ == '__main__':
-
-	'''
-	To run the template program, run the command in the termninal as follows: 
-	python main_template.py varible1 variable2 variable3 variable4
-
-	or 
-
-	python main_template.py 
-
-	with defaults
-
-	For the variables:
-
-	variable1: length of challenge, it defaults to 64 bits
-	variable2: noisiness, it effects the reliability(robustness) of CPUF instance, it defaults to 0.1 (It turns out to be 95% around of reliability)
-	variable3: the biased distribution on responses, it defaults to 0.5. 
- 	variable4: basis, bit or bothaccuracy of hpuf, it defaults to 'bit'
- 	variable5: kXORPUF
-	'''
-	# Enable GPU/CPU (optional)
-	# os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
-	os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-
-	if len(sys.argv) == 6:
-		n = int(sys.argv[1])
-		noisiness = float(sys.argv[2])
-		bias = float(sys,argv[3])
-		position = sys.argv[4]
-		k = int(sys.argv[5])
-	else:
-		n = 128
-		noisiness_cpuf = 0
-		bias = 0.5
-		position = 'bit'
-		k = 5
-
-	steps = 1
-	coe_hdata = 0.85
-
-	Path("./data").mkdir(parents=True, exist_ok=True)
-	template(n, noisiness_cpuf, bias, position, k, steps, coe_hdata)
 	
 
 

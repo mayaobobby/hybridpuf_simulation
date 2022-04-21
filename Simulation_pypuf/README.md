@@ -1,15 +1,16 @@
 # Simulation with pypuf
 
-There are different files can be found in the project folder. To start with, user can run:
+## BB84 encoding
+We provide a simulation of HPUF with BB84 encoding (See paper for more details) and an underlying of k-XORPUF (k=4/5 with ```bb84_xorpuf4.py/bb84_xorpuf5.py```). Run the simulation with command as follows:
 ```
-python main_template.py
+python bb84_xorpuf5.py
 ```
-to perform a modeling attack on HPUF with an underlying of k-XORPUF (```apuf_attack.py```). It outputs the relation of #CRPs and accuracy of produced models with CPUF/HPUF constructions. 
+to perform a modeling attack on HPUF. It outputs the prediction accuracy of CPUF/HPUF with corresponding CRPs. 
 
-The different quantum encoding alters the coefficient of HPUF, e.g., the BB84 encoding causes a randomness of 15% on the response. Therefore, the coefficient is 85%. 
+The optimal success probability of BB84 encoding to extract actual response of CPUF from HPUF by adversary is 85%, which leads a randomness of 15% on the response obtain by adversary.  
 
-With a underlying of k-XORPUF and BB84 encoding, the simulation results is given as follows (with a challenge size n=64/128):
+The simulation results is given as follows (with a challenge size n=64/128):
 <img alt="alt_text" width="2000px" src="../images/k4.png" />
 <img alt="alt_text" width="2000px" src="../images/k5.png" />
 
-Meanwhile, there are more simulations provided in terms of arbitrary distribution of challenge and different instances of CPUFs. 
+## MUB8 encoding
