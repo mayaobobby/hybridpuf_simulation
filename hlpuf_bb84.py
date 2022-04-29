@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 import pypuf.simulation, pypuf.io
-from Simulation_pypuf import arbitrary_challenges
+from Simulation_pypuf.challenge_test import arbitrary_challenges
 
 import netsquid.qubits.ketstates as ks
 import netsquid.components.instructions as instr

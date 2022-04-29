@@ -47,8 +47,8 @@ def plot_basis(n):
 
 	plt.title('n='+str(n)+', k=4', fontsize=15)
 	plt.plot(a_final, b_final, label = 'cpuf')
-	plt.plot(a_final, c_final, label = 'hpuf:state', linestyle='dashed')
-	plt.plot(a_final, d_final, label = 'hpuf:basis/both')
+	plt.plot(a_final, c_final, label = 'hpuf:bit', linestyle='dashed')
+	plt.plot(a_final, d_final, label = 'hpuf:basis')
 	plt.vlines(a_final[count], c_final[count], d_final[count], linestyles='dotted', label='basis learing start')
 	plt.xlabel("Number of CRPs", fontsize=12)
 	plt.ylabel("Accuracy (x100%)", fontsize=12)

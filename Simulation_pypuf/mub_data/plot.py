@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 n_size = 32
 k = 5
-plt.title('n = '+str(n_size)+',k = '+str(k))
+plt.title('n='+str(n_size)+',k='+str(k), fontsize=15)
 repeat_experiment = 60
 crps = np.load('./crps_xorpuf_n'+str(n_size)+'k'+str(k)+'_MUB8_rep'+str(repeat_experiment)+'.npy')
 accuracy_c = np.load('./classical_xorpuf_accuracy_n'+str(n_size)+'k'+str(k)+'_MUB8_rep'+str(repeat_experiment)+'.npy')
@@ -30,5 +30,5 @@ for i in range(3):
 
 plt.xlabel('Number of CRPs')
 plt.ylabel('Accuracy (x100%)')
-plt.legend()
+plt.legend(loc='lower right')
 plt.show()
