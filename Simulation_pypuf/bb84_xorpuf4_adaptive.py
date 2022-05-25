@@ -195,4 +195,3 @@ if __name__ == '__main__':
 	print("Number of adpative queries:", sum(counter_queries)/len(counter_queries))
 	print("Correct rate:", [x / iteration for x in correct_bases])
 
-

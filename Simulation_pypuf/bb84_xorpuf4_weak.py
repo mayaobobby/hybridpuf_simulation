@@ -109,7 +109,7 @@ def plot(crps_bit, accuracy_cpuf_bit, accuracy_hpuf_bit, accuracy_hpuf_basis):
 
 if __name__ == '__main__':
 	'''
-	Simulation of HPUF with BB84 encoding and an underlying of 4XORPUF
+	Simulation of HPUF with BB84 encoding and an underlying of 4XORPUF against weak adversaries
 	
 	Variables:
 	n: length of challenge, it defaults to 64 bits
