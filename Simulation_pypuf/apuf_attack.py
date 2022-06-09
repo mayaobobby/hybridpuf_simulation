@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import sys, os, random
+from pathlib import Path
 
 from util import *
 
@@ -86,20 +87,32 @@ def instance_one_apuf_attack(puf, num_crps, num_bs, num_epochs):
 Description: Arbiter-based PUF under ML attacks with classical structure. (one chain with repetitions)
 '''
 def instance_one_apuf_attack_n(puf, crps, repeat_experiment, steps):
-	accuracy_cpuf = np.array([])
+	total_feas_rate = np.array([])
+	total_accuracy = np.array([])
 	for i in range(steps):
 		instance_accuracy_cpuf_repeat = np.zeros(repeat_experiment)
 		N = int(crps[i])
 		for j in range(repeat_experiment):
 			instance_accuracy_cpuf_repeat[j] = instance_one_apuf_attack(puf, N, num_bs=1000, num_epochs=100)
-		print(instance_accuracy_cpuf_repeat)
-		print("CPUF Median:", np.median(instance_accuracy_cpuf_repeat))
 		instance_accuracy_cpuf = np.mean(instance_accuracy_cpuf_repeat)	
-		print("CPUF Mean:", instance_accuracy_cpuf)
-	
-		accuracy_cpuf = np.append(accuracy_cpuf, instance_accuracy_cpuf)
 
-	return accuracy_cpuf
+		feas_count = 0
+		instance_feas_rate = 0
+		for k in instance_accuracy_cpuf_repeat:
+			if k >= .95:
+				feas_count += 1
+		instance_feas_rate = feas_count/instance_accuracy_cpuf_repeat.shape[0]
+		total_feas_rate = np.append(total_feas_rate, instance_feas_rate)
+		total_accuracy = np.append(total_accuracy, instance_accuracy_cpuf)
+		with open('./data/xorpuf'+str(puf.k)+'/c_summary_xorpuf'+str(puf.k)+'_'+str(puf.n)+'.txt', 'a') as f:
+			print("CRPs:", N, file=f)
+			print(instance_accuracy_cpuf_repeat, file=f)
+			print("CPUF Median:", np.median(instance_accuracy_cpuf_repeat), file=f)
+			print("CPUF Mean:", instance_accuracy_cpuf, file=f)
+			print("Feasible Models Rate:", instance_feas_rate, file=f)
+
+
+	return total_accuracy
 
 
 '''
@@ -112,8 +125,6 @@ def instance_two_apuf_attack(puf_bit, puf_basis, crps, repeat_experiment):
 	accuracy_two_apuf = accuracy_basis * accuracy_bit
 
 	return accuracy_two_apuf
-
-
 
 '''
 Description: Arbiter PUF under ML attacks with hybrid structure. (one chain)
@@ -167,20 +178,31 @@ def instance_one_hybrid_apuf_attack(success_prob, puf_bit, puf_basis, num_crps, 
 Description: Arbiter-based PUF under ML attacks with hybrid structure. (one chain with repetitions)
 '''
 def instance_one_hybrid_apuf_attack_n(success_prob, puf_bit, puf_basis, crps, position, repeat_experiment, steps):
-	accuracy_hpuf = np.array([])
+	Path("./data/xorpuf"+str(puf_basis.k)).mkdir(parents=True, exist_ok=True)
+	total_feas_rate = np.array([])
+	total_accuracy = np.array([])
 	for i in range(steps):
 		instance_accuracy_hpuf_repeat = np.zeros(repeat_experiment)
 		N = int(crps[i])
 		for j in range(repeat_experiment):
 			instance_accuracy_hpuf_repeat[j] = instance_one_hybrid_apuf_attack(success_prob, puf_bit, puf_basis, N, position, num_bs=1000, num_epochs=100)
-		print(instance_accuracy_hpuf_repeat)
-		print("HPUF Median:", np.median(instance_accuracy_hpuf_repeat))
 		instance_accuracy_hpuf = np.mean(instance_accuracy_hpuf_repeat)	
-		print("HPUF Mean:", instance_accuracy_hpuf)
-	
-		accuracy_hpuf = np.append(accuracy_hpuf, instance_accuracy_hpuf)
+		feas_count = 0
+		instance_feas_rate = 0
+		for k in instance_accuracy_hpuf_repeat:
+			if k >= .95:
+				feas_count += 1
+		instance_feas_rate = feas_count/instance_accuracy_hpuf_repeat.shape[0]
+		total_feas_rate = np.append(total_feas_rate, instance_feas_rate)
+		total_accuracy = np.append(total_accuracy, instance_accuracy_hpuf)
+		with open('./data/xorpuf'+str(puf_basis.k)+'/h_summary_xorpuf'+str(puf_basis.k)+'_'+str(puf_basis.n)+'.txt', 'a') as f:
+			print("CRPs:", N, file=f)
+			print(instance_accuracy_hpuf_repeat, file=f)
+			print("HPUF Median:", np.median(instance_accuracy_hpuf_repeat), file=f)
+			print("HPUF Mean:", instance_accuracy_hpuf, file=f)
+			print("Feasible Models Rate:", instance_feas_rate, file=f)
 
-	return accuracy_hpuf
+	return total_accuracy
 
 
 
