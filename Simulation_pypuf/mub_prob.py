@@ -108,10 +108,10 @@ def mub_probabilities(d):
         MUB = mutually_unbiased_bases_4()
         #verify_MUB(MUB)
         rho = MUB_mixed_states(MUB)
-        p0 = distinguish_probability((rho[0]+rho[2])/2,(rho[1]+rho[3])/2)
-        p1_0 = distinguish_probability(rho[0],rho[2])
-        p1_1 = distinguish_probability(rho[1],rho[3])
-        p1 = max(p1_0,p1_1)
+        p0 = distinguish_probability((rho[0]+rho[2])/2,(rho[1]+rho[3])/2) #Probability of guessing rightmost bit
+        p1_0 = distinguish_probability(rho[0],rho[2]) #Prob of guessing left bit if right bit is 0
+        p1_1 = distinguish_probability(rho[1],rho[3]) #Prob of guessing left bit if right bit is 1
+        p1 = max(p1_0,p1_1) #Max prob of guessing left bit
         p = [p0,p1]
         return p
     
