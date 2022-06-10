@@ -119,13 +119,13 @@ if __name__ == '__main__':
 	k = np.arange(1,k_steps+1,1)
 	
 
-	# for i in range(p_steps):
-	# 	puf_lbf = linear_boolean_function(n,weight)
-	# 	indices[i,:] = np.nonzero(puf_lbf)[0]
+	for i in range(p_steps):
+		puf_lbf = linear_boolean_function(n,weight)
+		indices[i,:] = np.nonzero(puf_lbf)[0]
 
-	# 	for j in range(k_steps):
-	# 		accuracy_cpuf[j,i] = lbf_lr_cpuf(puf_lbf, N, challenges, k[j])
-	# 		accuracy_hpuf[j,i] = lbf_lr_hpuf(puf_lbf, N, challenges, k[j])
+		for j in range(k_steps):
+			accuracy_cpuf[j,i] = lbf_lr_cpuf(puf_lbf, N, challenges, k[j])
+			accuracy_hpuf[j,i] = lbf_lr_hpuf(puf_lbf, N, challenges, k[j])
 		
 		
 	
