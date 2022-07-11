@@ -109,7 +109,7 @@ def instance_one_apuf_attack_n(puf, crps, repeat_experiment, steps):
 			print(instance_accuracy_cpuf_repeat, file=f)
 			print("CPUF Median:", np.median(instance_accuracy_cpuf_repeat), file=f)
 			print("CPUF Mean:", instance_accuracy_cpuf, file=f)
-			print("Feasible Models Rate:", instance_feas_rate, file=f)
+			print("Success Rate:", instance_feas_rate, file=f)
 
 
 	return total_accuracy
@@ -200,7 +200,7 @@ def instance_one_hybrid_apuf_attack_n(success_prob, puf_bit, puf_basis, crps, po
 			print(instance_accuracy_hpuf_repeat, file=f)
 			print("HPUF Median:", np.median(instance_accuracy_hpuf_repeat), file=f)
 			print("HPUF Mean:", instance_accuracy_hpuf, file=f)
-			print("Feasible Models Rate:", instance_feas_rate, file=f)
+			print("Success Rate:", instance_feas_rate, file=f)
 
 	return total_accuracy
 

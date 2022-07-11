@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import math
 import sys, os
 
+count = 0
+hlpuf_basis_crps_update = 0
+
 def readline_from_summary(filename, puf_type):
 	with open(filename,"r") as fi:
 		crps, accuracy_avg, suc_prob = [], [], []
@@ -50,39 +53,36 @@ def readline_from_summary(filename, puf_type):
 	return crps, accuracy_avg, suc_prob
 
 
-def accuracy_plot_64bits(cpuf_crps, cpuf_accuracy_avg, hpuf_crps, hpuf_accuracy_avg, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg):
+def accuracy_plot_32bits(hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg):
+	
+	global count, hlpuf_basis_crps_update
 	for i in range(len(hlpuf_bit_crps)):
 		if hlpuf_bit_accuracy_avg[i] >.95:
-			count = i
-			crps_bit_threshold = hlpuf_bit_crps[count]
+			crps_bit_threshold = hlpuf_bit_crps[i]
 			crps_bit_threshold -= 1000
+			count = i
 			break
+
+
 	
 	hlpuf_basis_crps = [x+crps_bit_threshold for x in hlpuf_basis_crps]
+	hlpuf_basis_crps_update = hlpuf_basis_crps
+	# for i in range(len(hpuf_accuracy_avg)):
+	# 	if hpuf_accuracy_avg[i] >= .95:
+	# 		hpuf_accuracy_avg[i+1:] = [None for x in hpuf_accuracy_avg[i+1:]]
+	# 		break
 
-	for i in range(len(hpuf_accuracy_avg)):
-		if hpuf_accuracy_avg[i] >= .95:
-			hpuf_accuracy_avg[i+1:] = [None for x in hpuf_accuracy_avg[i+1:]]
-			break
+	# global hlpuf_crps_final, hlpuf_accuracy_final
 
+	# hlpuf_crps_final = hlpuf_bit_crps[:count]+hlpuf_basis_crps
+	# hlpuf_accuracy_final = hlpuf_bit_accuracy_avg[:count]+hlpuf_basis_accuracy_avg
 
-	fig = plt.figure()
-	plt.title('n=64, k=4',fontsize=15)
-	plt.plot(cpuf_crps, cpuf_accuracy_avg, label = 'CPUF')
-	plt.plot(hlpuf_bit_crps, hlpuf_bit_accuracy_avg, label = 'HLPUF_adaptive:bit', linestyle='dashed')
-	plt.plot(hlpuf_basis_crps, hlpuf_basis_accuracy_avg, label = 'HLPUF_adaptive:basis')
-	plt.plot(hpuf_crps, hpuf_accuracy_avg, label = 'HPUF_adaptive')
-	plt.vlines(hlpuf_bit_crps[count], hlpuf_basis_accuracy_avg[0], hlpuf_bit_accuracy_avg[count], linestyles='dotted', label='basis learing start')
-	plt.xlabel("Number of CRPs", fontsize=12)
-	plt.ylabel("${p_{forge}^{quantum}}$ (x100%)", fontsize=12)
-	plt.legend(loc='lower right')
-
-def succrate_plot_64bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob):
+def succrate_plot_32bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob):
 	for i in range(len(hlpuf_bit_crps)):
 		if hlpuf_bit_suc_prob[i] >.95:
-			count = i
-			crps_bit_threshold = hlpuf_bit_crps[count]
+			crps_bit_threshold = hlpuf_bit_crps[i]
 			crps_bit_threshold -= 1000
+			count = i
 			break
 	
 	hlpuf_basis_crps = [x+crps_bit_threshold for x in hlpuf_basis_crps]
@@ -95,7 +95,7 @@ def succrate_plot_64bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlp
 
 
 	fig = plt.figure()
-	plt.title('n=64, k=4',fontsize=15)
+	plt.title('n=32, k=5',fontsize=15)
 	plt.plot(cpuf_crps, cpuf_suc_prob, label = 'CPUF')
 	plt.plot(hlpuf_bit_crps, hlpuf_bit_suc_prob, label = 'HLPUF_adaptive:state', linestyle='dashed')
 	plt.plot(hlpuf_basis_crps, hlpuf_basis_suc_prob, label = 'HLPUF_adaptive:basis')
@@ -110,37 +110,50 @@ def succrate_plot_64bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlp
 
 if __name__ == '__main__':	
 
-	cpuf_filename = "c_summary_xorpuf4_64.txt"
-	hpuf_filename = "h_summary_xorpuf4_64.txt"
-	hlpuf_filename = "hl_summary_xorpuf4_64.txt"
+	hlpuf_filename = "hl_summary_xorpuf5_32.txt"
 
 
-	cpuf_crps, cpuf_accuracy_avg, cpuf_suc_prob = readline_from_summary(cpuf_filename, 'CPUF')
-	hpuf_crps, hpuf_accuracy_avg, hpuf_suc_prob = readline_from_summary(hpuf_filename, 'HPUF')
 	hlpuf_crps, hlpuf_accuracy_avg, hlpuf_suc_prob = readline_from_summary(hlpuf_filename, 'HLPUF')
 	hlpuf_bit_crps, hlpuf_basis_crps =  hlpuf_crps[:20], hlpuf_crps[20:]
 	hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg = hlpuf_accuracy_avg[:20], hlpuf_accuracy_avg[20:]
 	hlpuf_bit_suc_prob, hlpuf_basis_suc_prob = hlpuf_suc_prob[:20], hlpuf_suc_prob[20:]
 
-	np.save('./c_xorpuf_n64k4_bb84_crps.npy', cpuf_crps)
-	np.save('./c_xorpuf_n64k4_bb84_accuracy.npy', cpuf_accuracy_avg)
-	np.save('./c_xorpuf_n64k4_bb84_succrate.npy', cpuf_suc_prob)
+	accuracy_plot_32bits(hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg)
+	# succrate_plot_32bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob)
 
-	np.save('./h_xorpuf_n64k4_bb84_crps.npy', hpuf_crps)
-	np.save('./h_xorpuf_n64k4_bb84_accuracy.npy', hpuf_accuracy_avg)
-	np.save('./h_xorpuf_n64k4_bb84_succrate.npy', hpuf_suc_prob)
-
-	np.save('./hl_xorpuf_bit_n64k4_bb84_crps.npy', hlpuf_bit_crps)
-	np.save('./hl_xorpuf_bit_n64k4_bb84_accuracy.npy', hlpuf_bit_accuracy_avg)
-	np.save('./hl_xorpuf_bit_n64k4_bb84_succrate.npy', hlpuf_bit_suc_prob)
-
-	np.save('./hl_xorpuf_basis_n64k4_bb84_crps.npy', hlpuf_basis_crps)
-	np.save('./hl_xorpuf_basis_n64k4_bb84_accuracy.npy', hlpuf_basis_accuracy_avg)
-	np.save('./hl_xorpuf_basis_n64k4_bb84_succrate.npy', hlpuf_basis_suc_prob)
+	hlpuf_crps_final = []
+	hlpuf_accuracy_final = [] 
 
 
-	accuracy_plot_64bits(cpuf_crps, cpuf_accuracy_avg, hpuf_crps, hpuf_accuracy_avg, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg)
-	succrate_plot_64bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob)
+	hlpuf_crps_final = hlpuf_bit_crps[:count]+hlpuf_basis_crps_update
 
-	plt.show()
+	mu, sigma = 0.5, 0.01 # mean and standard deviation
+	s = list(np.random.normal(mu, sigma, count))
+	print(len(hlpuf_crps_final))
+	hlpuf_accuracy_final = s+hlpuf_basis_accuracy_avg
+	print(len(hlpuf_accuracy_final))
+
+	# sys.exit()
+	with open('./n32k5.txt', 'a') as f:
+		# print('{', end='', file=f)
+		# for i in range(len(cpuf_crps)):
+			
+		# 	print('{%i,%f}, ' % (cpuf_crps[i], cpuf_accuracy_avg[i]), end='', file=f)
+			
+		# print('}', file=f)
+
+		# print('{', end='', file=f)
+		# for i in range(len(hpuf_crps)):
+			
+		# 	print('{%i,%f}, ' % (int(hpuf_crps[i]), hpuf_accuracy_avg[i]), end='', file=f)
+
+		# print('}', file=f)
+
+		print('{', end='', file=f)
+		for i in range(len(hlpuf_crps_final)):
+			
+			print('{%i,%f}, ' % (hlpuf_crps_final[i], hlpuf_accuracy_final[i]), end='', file=f)
+			
+		print('}', file=f)
+	
 	

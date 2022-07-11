@@ -18,7 +18,7 @@ k: For XORPUF (k-APUF in parallel)
 noisiness_cpuf: CPUF device noise
 '''
 def CPUF_param(qubit_size):
-	n = 64
+	n = 32
 	m = qubit_size*2
 	k = 5
 	noisiness_cpuf = 0
@@ -33,7 +33,9 @@ def crp_apuf(n, steps=20):
 	crps = np.array([])
 	N = 1000
 	step = 0
-	if n == 64:
+	if n == 32:
+		step = 1e4
+	elif n == 64:
 		step = 32.5e3
 	elif n == 128:
 		step = 25e4
@@ -77,13 +79,13 @@ def bb84_xorpuf5(puf_bit, puf_basis, position, k, steps, success_prob):
 	if position == 'bit':
 		accuracy_cpuf = instance_one_apuf_attack_n(puf_bit, crps, repeat_experiment, steps)
 		accuracy_hpuf = instance_one_hybrid_apuf_attack_n(success_prob, puf_bit, puf_basis, crps, position, repeat_experiment, steps)
-		np.save('./data/xorpuf5/'+str(n)+'n_xorpuf5_crps.npy', crps)
-		np.save('./data/xorpuf5/'+str(n)+'c_xorpuf5_a.npy', accuracy_cpuf)
-		np.save('./data/xorpuf5/'+str(n)+'h_xorpuf5_'+position+'_a.npy', accuracy_hpuf)
+		# np.save('./data/xorpuf5/'+str(n)+'n_xorpuf5_crps.npy', crps)
+		# np.save('./data/xorpuf5/'+str(n)+'c_xorpuf5_a.npy', accuracy_cpuf)
+		# np.save('./data/xorpuf5/'+str(n)+'h_xorpuf5_'+position+'_a.npy', accuracy_hpuf)
 	elif position == 'basis':
 		accuracy_cpuf = np.ones(steps)
 		accuracy_hpuf = instance_one_hybrid_apuf_attack_n(success_prob, puf_bit, puf_basis, crps, position, repeat_experiment, steps)
-		np.save('./data/xorpuf5/'+str(n)+'h_xorpuf5_'+position+'_a.npy', accuracy_hpuf)
+		# np.save('./data/xorpuf5/'+str(n)+'h_xorpuf5_'+position+'_a.npy', accuracy_hpuf)
 	
 	return crps, accuracy_cpuf, accuracy_hpuf
 
@@ -163,6 +165,6 @@ if __name__ == '__main__':
 	puf_basis = puf_instances[1]
 
 	crps_bit, accuracy_cpuf_bit, accuracy_hpuf_bit = bb84_xorpuf5(puf_bit, puf_basis, 'bit', k, steps, success_prob)
-	# _, _, accuracy_hpuf_basis = bb84_xorpuf5(puf_bit, puf_basis, 'basis', k, steps, success_prob)
+	_, _, accuracy_hpuf_basis = bb84_xorpuf5(puf_bit, puf_basis, 'basis', k, steps, success_prob)
 
 	# plot(crps_bit, accuracy_cpuf_bit, accuracy_hpuf_bit, accuracy_hpuf_basis)

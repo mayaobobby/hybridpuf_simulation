@@ -69,45 +69,45 @@ def accuracy_plot_128bits(cpuf_crps, cpuf_accuracy_avg, hpuf_crps, hpuf_accuracy
 
 	fig = plt.figure()
 	plt.title('n=128, k=4',fontsize=15)
-	plt.plot(cpuf_crps, cpuf_accuracy_avg, label = 'cpuf')
-	plt.plot(hlpuf_bit_crps, hlpuf_bit_accuracy_avg, label = 'hlpuf_adaptive:state', linestyle='dashed')
-	plt.plot(hlpuf_basis_crps, hlpuf_basis_accuracy_avg, label = 'hlpuf_adaptive:basis')
-	plt.plot(hpuf_crps, hpuf_accuracy_avg, label = 'hpuf_adaptive')
-	plt.vlines(hlpuf_bit_crps[count], hlpuf_basis_accuracy_avg[0], hlpuf_bit_accuracy_avg[count], linestyles='dotted', label='basis learing start')
+	plt.plot(cpuf_crps, cpuf_accuracy_avg, label = 'CPUF', color='blue')
+	plt.plot(hlpuf_bit_crps, hlpuf_bit_accuracy_avg, label = 'HLPUF_adaptive:state', linestyle='dashed', color='orange')
+	plt.plot(hlpuf_basis_crps, hlpuf_basis_accuracy_avg, label = 'HLPUF_adaptive:basis', color='green')
+	plt.plot(hpuf_crps, hpuf_accuracy_avg, label = 'HPUF_adaptive', color='red')
+	plt.vlines(hlpuf_bit_crps[count], hlpuf_basis_accuracy_avg[0], hlpuf_bit_accuracy_avg[count], linestyle='dotted', label='Basis learing starts')
 	plt.xlabel("Number of CRPs", fontsize=12)
 	plt.ylabel("${p_{forge}^{quantum}}$ (x100%)", fontsize=12)
 	plt.legend(loc='lower right')	
 
-def feasrate_plot_128bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob):
-	for i in range(len(hlpuf_bit_crps)):
-		if hlpuf_bit_suc_prob[i] >.95:
-			crps_bit_threshold = hlpuf_bit_crps[i]
-			crps_bit_threshold -= 1000
-			count = i
-			break
+# def succrate_plot_128bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob):
+# 	for i in range(len(hlpuf_bit_crps)):
+# 		if hlpuf_bit_suc_prob[i] >.95:
+# 			crps_bit_threshold = hlpuf_bit_crps[i]
+# 			crps_bit_threshold -= 1000
+# 			count = i
+# 			break
 	
-	hlpuf_basis_crps = [x+crps_bit_threshold for x in hlpuf_basis_crps]
+# 	hlpuf_basis_crps = [x+crps_bit_threshold for x in hlpuf_basis_crps]
 
-	for i in range(len(hpuf_suc_prob)):
-		if hpuf_suc_prob[i] >= .95:
-			hpuf_suc_prob[i+1:] = [None for x in hpuf_suc_prob[i+1:]]
-			break
-	# for i in range(len(cpuf_suc_prob)):
-	# 	if cpuf_suc_prob[i] > .95:
-	# 		cpuf_suc_prob[i+2:] = [None for x in cpuf_suc_prob[i+2:]]
-	# 		break
+# 	for i in range(len(hpuf_suc_prob)):
+# 		if hpuf_suc_prob[i] >= .95:
+# 			hpuf_suc_prob[i+1:] = [None for x in hpuf_suc_prob[i+1:]]
+# 			break
+# 	# for i in range(len(cpuf_suc_prob)):
+# 	# 	if cpuf_suc_prob[i] > .95:
+# 	# 		cpuf_suc_prob[i+2:] = [None for x in cpuf_suc_prob[i+2:]]
+# 	# 		break
 
 
-	fig = plt.figure()
-	plt.title('n=128, k=4',fontsize=15)
-	plt.plot(cpuf_crps, cpuf_suc_prob, label = 'CPUF')
-	plt.plot(hlpuf_bit_crps, hlpuf_bit_suc_prob, label = 'HLPUF_adaptive:state', linestyle='dashed')
-	plt.plot(hlpuf_basis_crps, hlpuf_basis_suc_prob, label = 'HLPUF_adaptive:basis')
-	plt.plot(hpuf_crps, hpuf_suc_prob, label = 'HPUF_adaptive')
-	plt.vlines(hlpuf_bit_crps[count], hlpuf_basis_suc_prob[0], hlpuf_bit_suc_prob[count], linestyles='dotted', label='basis learing start')
-	plt.xlabel("Number of CRPs", fontsize=12)
-	plt.ylabel("Success Rate(x100%)", fontsize=12)
-	plt.legend(loc='lower right')
+# 	fig = plt.figure()
+# 	plt.title('n=128, k=4',fontsize=15)
+# 	plt.plot(cpuf_crps, cpuf_suc_prob, label = 'CPUF')
+# 	plt.plot(hlpuf_bit_crps, hlpuf_bit_suc_prob, label = 'HLPUF_adaptive:state', linestyle='dashed')
+# 	plt.plot(hlpuf_basis_crps, hlpuf_basis_suc_prob, label = 'HLPUF_adaptive:basis')
+# 	plt.plot(hpuf_crps, hpuf_suc_prob, label = 'HPUF_adaptive')
+# 	plt.vlines(hlpuf_bit_crps[count], hlpuf_basis_suc_prob[0], hlpuf_bit_suc_prob[count], linestyles='dotted', label='basis learing start')
+# 	plt.xlabel("Number of CRPs", fontsize=12)
+# 	plt.ylabel("Success Rate(x100%)", fontsize=12)
+# 	plt.legend(loc='lower right')
 		
 
 
@@ -142,7 +142,7 @@ if __name__ == '__main__':
 	np.save('./hl_xorpuf_basis_n128k4_bb84_succrate.npy', hlpuf_basis_suc_prob)	
 
 	accuracy_plot_128bits(cpuf_crps, cpuf_accuracy_avg, hpuf_crps, hpuf_accuracy_avg, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg)
-	feasrate_plot_128bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob)
+	# succrate_plot_128bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob)
 	plt.show()
 
 	
