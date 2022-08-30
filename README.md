@@ -1,5 +1,5 @@
 # Hybrid Locked PUF Simulation
-A simulation of hybrid PUF (HPUF) performance with [pypuf](https://github.com/nils-wisiol/pypuf) and [netsquid](https://netsquid.org) in python inspired by the paper ["Quantum Lock: A Provable Quantum Communication Advantage"](https://arxiv.org/abs/2110.09469)
+A simulation of hybrid PUF (HPUF) performance with [pypuf](https://github.com/nils-wisiol/pypuf) and [netsquid](https://netsquid.org) in python inspired by the paper ["Quantum Lock: A Provable Quantum Communication Advantage"](https://arxiv.org/abs/2110.09469) (Qcrypt 2022: Contributed Talk83 https://www.youtube.com/watch?v=jGwXHn09wIA&t=7s)
 
 The idea of HPUF is to enhance the security of classical PUF by proposing quantum encoding on classical output of CPUF from adversary with modeling attacks. Meanwhile, a Lockdown technique is introduced to protect the HPUF authentication protocol from adaptive adversaries.
 
