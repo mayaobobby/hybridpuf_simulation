@@ -1,5 +1,12 @@
 # Simulation with pypuf
 
+## Prerequisite
+Install Pypuf package with:
+
+```
+pip install pypuf
+```
+
 ## BB84 encoding
 We provide a simulation of HPUF with BB84 encoding (See paper for more details) and an underlying of k-XORPUF (k=4/5 with ```bb84_xorpuf4.py/bb84_xorpuf5.py```). Run the simulation with command as follows:
 ```
