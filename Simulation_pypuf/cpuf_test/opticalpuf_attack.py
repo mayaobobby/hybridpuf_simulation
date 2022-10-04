@@ -9,7 +9,18 @@ import matplotlib.pyplot as plt
 import math
 import sys, os, random
 
-from util import *
+
+def hybrid_flipping(value_original, success_prob):
+	value_updated = value_original
+
+	value_p = random.random()
+
+	if value_p >= success_prob:
+		value_updated = -value_original
+	else:
+		pass
+
+	return value_updated
 
 def select_odd_responses(responses, num_crps):
     odd_responses = np.empty((num_crps,13,1), float)
@@ -174,34 +185,34 @@ def crp_opuf(n, steps=10):
 	return crps
 
 
-if __name__ == '__main__':
-	n_size = 32
-	m_size = 1
-	seed_instance = int.from_bytes(os.urandom(4), "big")
-	puf_opt = pypuf.simulation.IntegratedOpticalPUF(n=n_size,m=m_size, seed=seed_instance)
+# if __name__ == '__main__':
+# 	n_size = 32
+# 	m_size = 1
+# 	seed_instance = int.from_bytes(os.urandom(4), "big")
+# 	puf_opt = pypuf.simulation.IntegratedOpticalPUF(n=n_size,m=m_size, seed=seed_instance)
 
 
-	num_crps = 10000
+# 	num_crps = 10000
 
-	crps = instance_one_opuf_crps(puf_opt, num_crps)
+# 	crps = instance_one_opuf_crps(puf_opt, num_crps)
 
 
-	''' 
-	Description: It shows that the distribution intensity of electronmagnetic
-	field is not uniform, which leads to a diffculty of MUB encoding with higher dimension.
-	'''
-	val = 0. # the data to appear on the y-axis(start point).
-	ar = crps.responses.flatten()
-	# print(ar)
-	plt.plot(ar, np.zeros_like(ar) + val, 'x')
-	plt.show()
+# 	''' 
+# 	Description: It shows that the distribution intensity of electronmagnetic
+# 	field is not uniform, which leads to a diffculty of MUB encoding with higher dimension.
+# 	'''
+# 	val = 0. # the data to appear on the y-axis(start point).
+# 	ar = crps.responses.flatten()
+# 	# print(ar)
+# 	plt.plot(ar, np.zeros_like(ar) + val, 'x')
+# 	plt.show()
 
 
 
 '''
 template of usage
 '''
-'''
+
 if __name__ == '__main__':
 	n_size = 32
 	m_size = 26
@@ -223,10 +234,10 @@ if __name__ == '__main__':
 	accuracy_h2 = instance_one_hybrid_opuf_attack_n(puf_opt, num_crps, repeat_experiment, "bit")
 	print(accuracy_h2)
 
-	np.save('./data/crps_opuf_'+str(n_size)+'_'+str(m_size)+'.npy', num_crps)
-	np.save('./data/classical_opuf_accuracy'+str(n_size)+'_'+str(m_size)+'.npy', accuracy_c)
-	#np.save('./data/hybrid_opuf_accuracy'+str(n)+'_'+str(m)+'.npy', accuracy_h2)
-	np.save('./data/hybrid_opuf_odd_accuracy'+str(n_size)+'_'+str(m_size)+'.npy', accuracy_h2)
+	# np.save('./data/crps_opuf_'+str(n_size)+'_'+str(m_size)+'.npy', num_crps)
+	# np.save('./data/classical_opuf_accuracy'+str(n_size)+'_'+str(m_size)+'.npy', accuracy_c)
+	# # np.save('./data/hybrid_opuf_accuracy'+str(n)+'_'+str(m)+'.npy', accuracy_h2)
+	# np.save('./data/hybrid_opuf_odd_accuracy'+str(n_size)+'_'+str(m_size)+'.npy', accuracy_h2)
 
 	plt.title('Optical PUF with Classical/Hybrid Construction')
 	plt.plot(num_crps, accuracy_c, label='cpuf')
@@ -235,4 +246,4 @@ if __name__ == '__main__':
 	plt.ylabel('Accuracy (x100%)')
 	plt.legend()
 	plt.show()
-'''
+
