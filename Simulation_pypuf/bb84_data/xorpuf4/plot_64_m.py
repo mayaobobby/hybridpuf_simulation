@@ -107,7 +107,6 @@ def accuracy_plot_64bits(cpuf_crps, cpuf_accuracy_avg, hpuf_crps, hpuf_accuracy_
 
 
 
-
 if __name__ == '__main__':	
 
 	cpuf_filename = "c_summary_xorpuf4_64.txt"
@@ -138,9 +137,70 @@ if __name__ == '__main__':
 	np.save('./hl_xorpuf_basis_n64k4_bb84_accuracy.npy', hlpuf_basis_accuracy_avg)
 	np.save('./hl_xorpuf_basis_n64k4_bb84_succrate.npy', hlpuf_basis_suc_prob)
 
+	for i in range(len(hlpuf_bit_crps)):
+		if hlpuf_bit_accuracy_avg[i] >.95:
+			count = i
+			crps_bit_threshold = hlpuf_bit_crps[count]
+			crps_bit_threshold -= 1000
+			break
+	
+	hlpuf_basis_crps = [x+crps_bit_threshold for x in hlpuf_basis_crps]
 
-	accuracy_plot_64bits(cpuf_crps, cpuf_accuracy_avg, hpuf_crps, hpuf_accuracy_avg, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg)
-	# succrate_plot_64bits(cpuf_crps, cpuf_suc_prob, hpuf_crps, hpuf_suc_prob, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_suc_prob, hlpuf_basis_suc_prob)
+	for i in range(len(hpuf_accuracy_avg)):
+		if hpuf_accuracy_avg[i] >= .95:
+			hpuf_accuracy_avg[i+1:] = [None for x in hpuf_accuracy_avg[i+1:]]
+			break
 
+
+	fig = plt.figure()
+	m = int(64)
+	plt.title('n=64, k=4, m=64',fontsize=15)
+
+
+	cpuf_prob_m = [0] * len(cpuf_accuracy_avg)
+	for i in range(len(cpuf_accuracy_avg)):
+		if cpuf_accuracy_avg[i] >.95:
+			cpuf_prob_m[i] = 1
+		else:
+			cpuf_prob_m[i] = cpuf_accuracy_avg[i]
+
+
+	hpuf_prob_m = [0] * len(hpuf_accuracy_avg)
+	for i in range(len(hpuf_accuracy_avg)):
+		if hpuf_accuracy_avg[i] == None:
+			hpuf_prob_m[i] = 1
+		elif hpuf_accuracy_avg[i] >.95:
+			hpuf_prob_m[i] = 1
+		else:
+			hpuf_prob_m[i] = hpuf_accuracy_avg[i]
+
+	hlpuf_prob_m = [0] * len(hlpuf_basis_accuracy_avg)
+	for i in range(len(hlpuf_basis_accuracy_avg)):
+		if hlpuf_basis_accuracy_avg[i] == None:
+			hlpuf_prob_m[i] = 1
+		elif hlpuf_basis_accuracy_avg[i] >.95:
+			hlpuf_prob_m[i] = 1
+		else:
+			hlpuf_prob_m[i] = hlpuf_basis_accuracy_avg[i]
+	
+	cpuf_prob_m = [cpuf_prob_m_ins**m for cpuf_prob_m_ins in cpuf_prob_m]
+	hpuf_prob_m =[hpuf_prob_m_ins**m for hpuf_prob_m_ins in hpuf_prob_m]
+	hlpuf_prob_m = [hlpuf_prob_m_ins**m for hlpuf_prob_m_ins in hlpuf_prob_m]
+	plt.plot(cpuf_crps, cpuf_prob_m, label = 'CPUF', color='blue')
+	plt.plot(hpuf_crps, hpuf_prob_m, label = 'HPUF_adaptive', color='red')
+	plt.plot(hlpuf_basis_crps, hlpuf_prob_m, label = 'HLPUF_adaptive', color='green')
+
+
+	plt.xlabel("Number of CRPs", fontsize=12)
+	plt.ylabel("${p_{forge}^{quantum}}$ (x100%)", fontsize=12)
+	plt.legend(loc='lower right')
+
+
+
+
+	# accuracy_plot_64bits(cpuf_crps, cpuf_accuracy_avg, hpuf_crps, hpuf_accuracy_avg, hlpuf_bit_crps, hlpuf_basis_crps, hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg)
+	
+	
 	plt.show()
 	
+
