@@ -6,7 +6,7 @@ import sys, os
 
 def readline_from_summary(filename, puf_type):
 	with open(filename,"r") as fi:
-		crps, accuracy_avg, suc_prob = [], [], []
+		crps, accuracy_avg = [], []
 		if puf_type == 'CPUF':
 			for ln in fi:
 				if ln.startswith("CRPs:"):
@@ -17,7 +17,7 @@ def readline_from_summary(filename, puf_type):
 					accuracy_avg.append(value)
 				if ln.startswith("Success Rate:"):
 					value = float(ln[13:])
-					suc_prob.append(value)
+
 		elif puf_type == 'HPUF':
 			for ln in fi:
 				if ln.startswith("Adaptive Query:"):
@@ -30,7 +30,6 @@ def readline_from_summary(filename, puf_type):
 					accuracy_avg.append(value)
 				if ln.startswith("Success Rate:"):
 					value = float(ln[13:])
-					suc_prob.append(value)
 
 			crps = [x*coe for x in crps]
 
@@ -44,11 +43,11 @@ def readline_from_summary(filename, puf_type):
 					accuracy_avg.append(value)
 				if ln.startswith("Success Rate:"):
 					value = float(ln[13:])
-					suc_prob.append(value)
+
 		else:
 			pass
 
-	return crps, accuracy_avg, suc_prob
+	return crps, accuracy_avg
 
 
 def hybrid_flipping(value_original, success_prob):
@@ -69,12 +68,11 @@ if __name__ == '__main__':
 	hlpuf_filename = "hl_summary_xorpuf4_128.txt"
 
 
-	cpuf_crps, cpuf_accuracy_avg, cpuf_suc_prob = readline_from_summary(cpuf_filename, 'CPUF')
-	hpuf_crps, hpuf_accuracy_avg, hpuf_suc_prob = readline_from_summary(hpuf_filename, 'HPUF')
-	hlpuf_crps, hlpuf_accuracy_avg, hlpuf_suc_prob = readline_from_summary(hlpuf_filename, 'HLPUF')
+	cpuf_crps, cpuf_accuracy_avg = readline_from_summary(cpuf_filename, 'CPUF')
+	hpuf_crps, hpuf_accuracy_avg = readline_from_summary(hpuf_filename, 'HPUF')
+	hlpuf_crps, hlpuf_accuracy_avg = readline_from_summary(hlpuf_filename, 'HLPUF')
 	hlpuf_bit_crps, hlpuf_basis_crps =  hlpuf_crps[:20], hlpuf_crps[20:]
 	hlpuf_bit_accuracy_avg, hlpuf_basis_accuracy_avg = hlpuf_accuracy_avg[:20], hlpuf_accuracy_avg[20:]
-	hlpuf_bit_suc_prob, hlpuf_basis_suc_prob = hlpuf_suc_prob[:20], hlpuf_suc_prob[20:]
 
 	for i in range(len(hlpuf_bit_crps)):
 		if hlpuf_bit_accuracy_avg[i] >.95:
