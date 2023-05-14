@@ -50,7 +50,6 @@ def readline_from_summary(filename, puf_type):
 
 	return crps, accuracy_avg, suc_prob
 
-
 def hamming(x, y):
 	i = 0
 	d = 0
@@ -59,7 +58,7 @@ def hamming(x, y):
 		assert len(x) == len(y)
 	except AssertionError:
 		raise Exception("The two strings are not the same length")
-	
+
 	
 	while i < len(x):
 		if x[i] != y[i]:
@@ -84,9 +83,9 @@ def hybrid_flipping(value_original, success_prob):
 
 if __name__ == '__main__':	
 
-	cpuf_filename = "c_summary_xorpuf4_64.txt"
-	hpuf_filename = "h_summary_xorpuf4_64.txt"
-	hlpuf_filename = "hl_summary_xorpuf4_64.txt"
+	cpuf_filename = "c_summary_xorpuf4_128.txt"
+	hpuf_filename = "h_summary_xorpuf4_128.txt"
+	hlpuf_filename = "hl_summary_xorpuf4_128.txt"
 
 
 	cpuf_crps, cpuf_accuracy_avg, cpuf_suc_prob = readline_from_summary(cpuf_filename, 'CPUF')
@@ -110,29 +109,29 @@ if __name__ == '__main__':
 			hpuf_accuracy_avg[i+1:] = [None for x in hpuf_accuracy_avg[i+1:]]
 			break
 
-
 	m = np.linspace(1, 64, num=64)
-	
+
+
 	fig, ax2 = plt.subplots()
 	for i in range(len(hlpuf_basis_accuracy_avg)):
 		hlpuf_prob_m = [hlpuf_basis_accuracy_avg[i]**j for j in m]
 
-		if i in [1,2,3,5,8,14,19]:
+		if i in [1,2,3,5,8,10,19]:
 			ax2.plot(m, hlpuf_prob_m, label = '%.2g'%hlpuf_basis_crps[i])
-	ax2.title.set_text('n=64, k=4')
+	ax2.title.set_text('n=128, k=4')
 	ax2.set_xlabel("Size of response m (qubits)", fontsize=12)
 	ax2.set_ylabel("HLPUF Success probability of guessing (x100%)", fontsize=12)
 	ax2.legend(loc='lower right')
 	ax2.get_legend().set_title("CRPs")
+	
 	plt.show()
 	
 '''
 # Success probability with hamming distance (TBD: Benchmarking)
 if __name__ == '__main__':	
-
-	cpuf_filename = "c_summary_xorpuf4_64.txt"
-	hpuf_filename = "h_summary_xorpuf4_64.txt"
-	hlpuf_filename = "hl_summary_xorpuf4_64.txt"
+	cpuf_filename = "c_summary_xorpuf4_128.txt"
+	hpuf_filename = "h_summary_xorpuf4_128.txt"
+	hlpuf_filename = "hl_summary_xorpuf4_128.txt"
 
 
 	cpuf_crps, cpuf_accuracy_avg, cpuf_suc_prob = readline_from_summary(cpuf_filename, 'CPUF')
@@ -155,7 +154,6 @@ if __name__ == '__main__':
 		if hpuf_accuracy_avg[i] >= .95:
 			hpuf_accuracy_avg[i+1:] = [None for x in hpuf_accuracy_avg[i+1:]]
 			break
-
 
 	m = np.linspace(1, 64, num=64)
 
@@ -174,12 +172,15 @@ if __name__ == '__main__':
 			
 			hamming_dis.append(sum(hamming_single)/len(hamming_single))
 		
-		if i in [1,2,3,5,8,14,19]:
+		if i in [1,2,3,5,8,10,19]:
 			ax1.plot(m, hamming_dis, label = hlpuf_basis_crps[i])
 	
-	ax1.set_xlabel("Size of response (m)", fontsize=12)
-	ax1.set_ylabel("Success probabilit (x100%)", fontsize=12)
+	ax1.set_xlabel("Size of response m (qubits)", fontsize=12)
+	ax1.set_ylabel("HLPUF Success probability of guessing (x100%)", fontsize=12)
 	ax1.legend(loc='lower right')
 	ax1.get_legend().set_title("CRPs")
+	
 	plt.show()
+
 '''
+
